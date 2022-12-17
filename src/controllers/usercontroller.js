@@ -13,7 +13,7 @@ module.exports = {
             if (err) {
                 throw err
             }
-            conn.query('select user.id,user.email,user.username,role.name from user join role where user.role = role.id', (err, result) => {
+            conn.query('select user.id,user.email,user.username,role.name from user join role where user.role = role.id order by user.id desc', (err, result) => {
                 if (err) {
                     res.status(500)
                         .send({
