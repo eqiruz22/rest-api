@@ -1,15 +1,12 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const cors = require('cors')
+import express from 'express'
+import cors from 'cors'
+import UserRoute from './src/routes/UserRoute.js'
 const app = express()
-const userRoute = require('./src/routes/user')
 
 const port = 4001
 app.use(cors())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
-
-app.use('/user', userRoute)
+app.use(express.json())
+app.use(UserRoute)
 
 app.listen(port, () => {
     console.log(`server running on port ${port}`)
