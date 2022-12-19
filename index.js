@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import UserRoute from './src/routes/UserRoute.js'
+import UserRoute from './src/routes/user/UserRoute.js'
 const app = express()
 
 const port = 4001

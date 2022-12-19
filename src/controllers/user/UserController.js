@@ -1,4 +1,4 @@
-import User from "../models/UserModel.js";
+import User from "../../models/user/UserModel.js";
 import { Op } from "sequelize";
 import bcrypt from "bcrypt"
 
