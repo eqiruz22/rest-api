@@ -1,8 +1,12 @@
-import { Sequelize } from "sequelize";
+import mysql from 'mysql2'
 
-const db = new Sequelize('rest-api', 'root', 'user.100', {
+const dbPool = mysql.createPool({
     host: 'localhost',
-    dialect: 'mysql'
+    user: 'root',
+    password: 'user.100',
+    database: 'rest-api'
 })
 
-export default db
+if (dbPool) console.log('Connected to database')
+
+export default dbPool.promise();

@@ -1,161 +1,157 @@
-import User from "../../models/user/UserModel.js";
-import { Op } from "sequelize";
-import bcrypt from "bcrypt"
+import UserModel from "../../models/user/UserModel.js"
+import bcrypt from 'bcrypt'
 
-
-export const getUser = async (req, res) => {
-    const page = parseInt(req.query.page) || 0
-    const limit = parseInt(req.query.limit) || 10
-    const search = req.query.q || ''
-    const offset = limit * page
-    const totalRow = await User.count({
-        where: {
-            [Op.or]: [{
-                email: {
-                    [Op.like]: '%' + search + '%'
-                }
-            }, {
-                username: {
-                    [Op.like]: '%' + search + '%'
-                }
-            }]
-        }
-    })
-    const totalPage = Math.ceil(totalRow / limit)
-    const result = await User.findAll({
-        where: {
-            [Op.or]: [{
-                email: {
-                    [Op.like]: '%' + search + '%'
-                }
-            }, {
-                username: {
-                    [Op.like]: '%' + search + '%'
-                }
-            }]
-        },
-        offset: offset,
-        limit: limit,
-        order: [
-            ['id', 'DESC']
-        ]
-    })
-    return res.status(200).json({
-        result: result,
-        page: page,
-        limit: limit,
-        totalRow: totalRow,
-        totalPage: totalPage
-    })
-
-}
-
-export const insertUser = async (req, res) => {
-    const email = req.body.email
-    const username = req.body.username
-    const password = req.body.password
-    const role = req.body.role
-    const hash = await bcrypt.hash(password, 10)
+const getAll = async (req, res) => {
     try {
-        await User.create({ email: email, username: username, password: hash, role: role })
-        return res.status(200).json({
-            message: 'Success create user',
-            data: req.body
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 5
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [totalRow] = await UserModel.CountRows(search)
+        const [rows, fields] = await UserModel.SelectAll(search, offset, limit)
+        const totalPage = Math.ceil(totalRow[0]['email'] / limit)
+        return res.json({
+            message: "Success show all data",
+            result: rows,
+            page: page,
+            limit: limit,
+            row: totalRow[0]['email'],
+            totalPage: totalPage
         })
     } catch (error) {
         return res.status(500).json({
-            message: 'Error while create user',
-            Error: error.errors[0].message,
-            data: error.errors[0].value + ' << Email already in database'
+            message: "Server error",
+            error: error
+        })
+    }
+
+}
+
+const countAll = async (req, res) => {
+    try {
+        const [row, field] = await UserModel.Count()
+        res.json(row)
+    } catch (error) {
+        return res.status(500).json({
+            message: "Server error",
+            error: error
         })
     }
 }
 
-export const getUserById = async (req, res) => {
+const getById = async (req, res) => {
     let id = req.params.id
+
     try {
-        const response = await User.findOne({
-            where: {
-                id: id
-            }
-        })
-        if (!response) {
+        const [rows, fields] = await UserModel.SelectById(id)
+        if (rows.length < 1) {
             return res.status(201).json({
-                message: 'Data not found'
+                message: 'User not found'
             })
         }
-        return res.status(201).json({
-            message: 'Success show data by id',
-            data: response
-        })
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Error while retrieve user by',
-            Error: error.message
-        })
-    }
-}
-
-export const updateUser = async (req, res) => {
-    let id = req.params.id
-    try {
-        await User.update({
-            email: req.body.email,
-            username: req.body.username,
-            role: req.body.role
-        }, {
-            where: {
-                id: id
-            }
-        })
-        return res.status(201).json({
-            message: "Succes update data",
-        })
-    } catch (error) {
-        return res.status(500).json({
-            message: 'Error while update data',
-            Error: error.message
-        })
-    }
-}
-
-export const updatePassword = async (req, res) => {
-    let id = req.params.id
-    const password = req.body.password
-    const hash = await bcrypt.hash(password, 10)
-    try {
-        await User.update({
-            password: hash
-        }, {
-            where: {
-                id: id
-            }
-        })
         return res.status(200).json({
-            message: 'Update password success'
+            message: 'Show user by id',
+            value: rows
+        })
+    } catch (error) {
+
+    }
+}
+
+const createData = async (req, res) => {
+    const email = req.body.email
+    const name = req.body.name
+    const password = await bcrypt.hash(req.body.password, 10)
+    const role = req.body.role
+
+    if (!req.body.email) {
+        return res.json({
+            message: 'email cannot be null'
+        })
+    }
+    if (!req.body.name) {
+        return res.json({
+            message: 'name cannot be null'
+        })
+    }
+    if (!req.body.password) {
+        return res.json({
+            message: 'password cannot be null'
+        })
+    }
+    if (req.body.password.length < 5) {
+        return res.json({
+            message: 'password cannot less than 5 character'
+        })
+    }
+    if (!req.body.role) {
+        return res.json({
+            message: 'role cannot be null'
+        })
+    }
+    try {
+        const data = await UserModel.Insert(email, name, password, role)
+        return res.status(201).json({
+            message: 'Success create data',
+            value: data
         })
     } catch (error) {
         return res.status(500).json({
-            message: 'Failed update password',
-            Error: err
+            message: 'Error while insert',
+            error: error
         })
     }
 }
 
-export const deleteUserById = async (req, res) => {
+const updateData = async (req, res) => {
     let id = req.params.id
-    try {
-        await User.destroy({
-            where: {
-                id: id
-            }
+    const email = req.body.email
+    const name = req.body.name
+    const role = req.body.role
+    if (!req.body.email) {
+        return res.json({
+            message: 'email cannot be null'
         })
-        return res.status(200).json({
-            message: 'Success delete user'
+    }
+    if (!req.body.role) {
+        return res.json({
+            message: 'role cannot be null'
+        })
+    }
+    try {
+        const [rows, fields] = await UserModel.Update(email, name, role, id)
+        return res.status(201).json({
+            message: 'Update data success',
+
         })
     } catch (error) {
         return res.status(500).json({
-            message: 'Error while delete user'
+            message: 'Error while update',
+            error: error
         })
     }
+}
+
+const deleteData = async (req, res) => {
+    let id = req.params.id
+    try {
+        await UserModel.Delete(id)
+        return res.status(201).json({
+            message: 'Delete data success',
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error while update',
+            error: error
+        })
+    }
+}
+
+export default {
+    getAll,
+    getById,
+    createData,
+    updateData,
+    deleteData,
+    countAll
 }
