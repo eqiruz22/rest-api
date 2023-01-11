@@ -27,6 +27,22 @@ const getAll = async (req, res) => {
 
 }
 
+const TestEmail = async (req, res) => {
+    const search = req.body.email
+    try {
+        const [row] = await UserModel.SelectEmail(search)
+        if (row.length > 0) {
+            return res.send({ value: row, message: 'email found' })
+        } else {
+            return res.send({ message: 'not found' })
+        }
+    } catch (error) {
+        return res.send({
+            message: error
+        })
+    }
+}
+
 const countAll = async (req, res) => {
     try {
         const [row, field] = await UserModel.Count()
@@ -63,6 +79,7 @@ const createData = async (req, res) => {
     const name = req.body.name
     const password = await bcrypt.hash(req.body.password, 10)
     const role = req.body.role
+    const title_id = req.body.title_id
 
     if (!req.body.email) {
         return res.json({
@@ -89,11 +106,18 @@ const createData = async (req, res) => {
             message: 'role cannot be null'
         })
     }
+    if (!req.body.title_id) {
+        return res.json({
+            message: 'Title cannot be null'
+        })
+    }
     try {
-        const data = await UserModel.Insert(email, name, password, role)
+        const data = await UserModel.Insert(email, name, password, role, title_id)
+        const approve = await UserModel.InsertManagerApproval(data[0]['insertId'])
         return res.status(201).json({
             message: 'Success create data',
-            value: data
+            value: data[0]['insertId'],
+            approveStatus: approve
         })
     } catch (error) {
         return res.status(500).json({
@@ -147,11 +171,30 @@ const deleteData = async (req, res) => {
     }
 }
 
+const getManager = async (req, res) => {
+    try {
+        const [row] = await UserModel.SelectManager()
+        res.status(201)
+            .json({
+                message: 'Success get role manager',
+                result: row
+            })
+    } catch (error) {
+        res.status(500)
+            .json({
+                message: 'Error',
+                Error: error
+            })
+    }
+}
+
 export default {
     getAll,
     getById,
     createData,
     updateData,
     deleteData,
-    countAll
+    countAll,
+    TestEmail,
+    getManager
 }

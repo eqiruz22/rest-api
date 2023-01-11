@@ -1,7 +1,15 @@
 import dbPool from '../../db/Config.js'
 
 const SelectAll = (search, offset, limit) => {
-    const sql = `SELECT id,email,name,password,role FROM user WHERE email LIKE '%${search}%' ORDER BY id DESC LIMIT ${offset},${limit}`
+    const sql = `SELECT user.id,user.email,user.name,role.role_name
+                 FROM user JOIN role
+                 WHERE user.role = role.id AND email LIKE '%${search}%' ORDER BY id DESC LIMIT ${offset},${limit}`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const SelectEmail = (email) => {
+    const sql = `SELECT email FROM user WHERE email LIKE '%${email}%'`
     const query = dbPool.execute(sql)
     return query
 }
@@ -12,11 +20,16 @@ const CountRows = (search) => {
     return query
 }
 
+const SelectManager = () => {
+    const sql = `SELECT user.id,user.email,user.name,title.title_name FROM user JOIN title WHERE title.title_name LIKE '%Manager' AND user.title_id = title.id`
+    const query = dbPool.execute(sql)
+    return query
+}
 
-const Insert = (email, name, password, role) => {
+const Insert = (email, name, password, role, title_id) => {
     const sql = `INSERT INTO user 
-                (email,name,password,role) VALUES
-                ('${email}','${name}','${password}','${role}');`
+                (email,name,password,role,title_id) VALUES
+                ('${email}','${name}','${password}','${role}','${title_id}');`
     const query = dbPool.execute(sql)
     return query
 }
@@ -28,7 +41,7 @@ const SelectById = (id) => {
 }
 
 const Update = (email, name, role, id) => {
-    const sql = `UPDATE user SET email='${email}','${name}',role='${role}' WHERE id=${id}`
+    const sql = `UPDATE user SET email='${email}',name='${name}',role='${role}' WHERE id=${id}`
     const query = dbPool.execute(sql)
     return query
 }
@@ -39,11 +52,21 @@ const Delete = (id) => {
     return query
 }
 
+const InsertManagerApproval = (id) => {
+    const sql = `INSERT INTO manager_approval (perdin_id,status_id) VALUES (${id},2)`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+
 export default {
     SelectAll,
+    SelectEmail,
     CountRows,
     SelectById,
     Insert,
     Update,
-    Delete
+    Delete,
+    SelectManager,
+    InsertManagerApproval
 }
