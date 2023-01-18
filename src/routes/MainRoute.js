@@ -1,5 +1,4 @@
 import express from 'express'
-import ManagerController from '../controllers/perdin/ManagerController.js';
 import PerdinController from '../controllers/perdin/PerdinController.js';
 import PrjController from '../controllers/prj/PrjController.js';
 import RoleController from '../controllers/role/RoleController.js';
@@ -7,6 +6,7 @@ import TitleController from '../controllers/title/TitleController.js';
 import UserController from '../controllers/user/UserController.js';
 const router = express.Router()
 
+router.post('/login', UserController.Login)
 router.get('/show', UserController.getAll)
 router.get('/show/:id', UserController.getById)
 router.get('/count', UserController.countAll)
@@ -27,6 +27,10 @@ router.patch('/title/update/:id', TitleController.UpdateById)
 router.delete('/title/delete/:id', TitleController.destroyTitle)
 
 router.get('/perdin-show', PerdinController.showPerdin)
-router.get('/list-perdin', ManagerController.showWaiting)
+router.get('/waiting-approve-manager', PerdinController.showWaiting)
+router.get('/waiting-approve-director', PerdinController.showWaitingToDirector)
 router.post('/perdin-create', PerdinController.createPerdin)
+router.post('/approved-manager', PerdinController.updateApprovedManager)
+
+
 export default router;

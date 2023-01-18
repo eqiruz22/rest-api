@@ -38,8 +38,56 @@ const InsertPerdin = (body, start_date, end_date) => {
     return query
 }
 
+const InsertDirectorApproval = (perdin_id, prj_id, user_id) => {
+    const sql = `INSERT INTO director_approval (perdin_id,prj_id,user_id,status_id) VALUES ('${perdin_id}','${prj_id}','${user_id}',1)`
+    const query = dbPool.execute(sql)
+    return query
+}
 
-const UpdatePerdin = () => {
+const waitingToApprove = () => {
+    const sql = `SELECT manager_approval.id,
+                  user.name,
+                  prj.prj_name,
+                  perdin.official_travel_site,
+                  perdin.total_received,
+                  status.proses,
+                  manager_approval.perdin_id,
+                  manager_approval.prj_id,
+                  manager_approval.user_id,
+                  manager_approval.status_id FROM manager_approval JOIN prj JOIN perdin JOIN user JOIN status 
+                  WHERE manager_approval.perdin_id = perdin.id 
+                  AND manager_approval.prj_id = prj.id AND manager_approval.user_id = user.id AND manager_approval.status_id = status.id`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const waitingToApproveDirector = () => {
+    const sql = `SELECT director_approval.id,
+                user.name,
+                prj.prj_name,
+                perdin.official_travel_site,
+                perdin.total_received,
+                status.proses,
+                director_approval.perdin_id,
+                director_approval.prj_id,
+                director_approval.user_id,
+                director_approval.status_id FROM director_approval JOIN prj JOIN perdin JOIN user JOIN status 
+                WHERE director_approval.perdin_id = perdin.id 
+                AND director_approval.prj_id = prj.id AND director_approval.user_id = user.id AND director_approval.status_id = status.id`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const updateApproval = (id) => {
+    const sql = `UPDATE manager_approval SET status_id = 4 WHERE id = ${id}`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const UpdatePerdinStatus = (id) => {
+    const sql = `UPDATE perdin SET status_id = 2 WHERE id = ${id}`
+    const query = dbPool.execute(sql)
+    return query
 
 }
 
@@ -54,8 +102,12 @@ const UpdateStatusComplete = () => {
 export default {
     SelectPerdin,
     InsertPerdin,
-    UpdatePerdin,
+    InsertDirectorApproval,
+    UpdatePerdinStatus,
     UpdateStatusBatchOne,
     UpdateStatusComplete,
+    waitingToApprove,
+    waitingToApproveDirector,
+    updateApproval
 
 }

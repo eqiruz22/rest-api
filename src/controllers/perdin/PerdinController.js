@@ -99,7 +99,73 @@ const createPerdin = async (req, res) => {
     }
 }
 
+const showWaiting = async (req, res) => {
+    try {
+        const [row] = await PerdinModel.waitingToApprove()
+        res.status(200)
+            .json({
+                message: 'Succes to show',
+                result: row
+            })
+    } catch (error) {
+        res.status(500)
+            .json({
+                message: 'Error',
+                Error: error
+            })
+    }
+}
+
+const updateApprovedManager = async (req, res) => {
+    const id = req.body.id
+    const perdin_id = req.body.perdin_id
+    const prj_id = req.body.prj_id
+    const user_id = req.body.user_id
+    const status_id = req.body.status_id
+
+    try {
+        const data1 = await PerdinModel.updateApproval(id)
+        const data2 = await PerdinModel.UpdatePerdinStatus(perdin_id)
+        const data3 = await PerdinModel.InsertDirectorApproval(perdin_id, prj_id, user_id)
+        res.status(200)
+            .json({
+                message: 'Update success',
+                result: {
+                    data1: data1,
+                    data2: data2,
+                    data3: data3
+                }
+            })
+    } catch (error) {
+        res.status(500)
+            .json({
+                message: 'Error',
+                Error: error
+            })
+    }
+}
+
+const showWaitingToDirector = async (req, res) => {
+    try {
+        const [row] = await PerdinModel.waitingToApproveDirector()
+        res.status(200)
+            .json({
+                message: 'Show waiting',
+                result: row
+            })
+    } catch (error) {
+        res.status(500)
+            .json({
+                message: 'Error',
+                Error: error
+            })
+    }
+}
+
 export default {
     showPerdin,
-    createPerdin
+    createPerdin,
+    showWaiting,
+    showWaitingToDirector,
+    updateApprovedManager
 }

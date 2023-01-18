@@ -9,7 +9,7 @@ const SelectAll = (search, offset, limit) => {
 }
 
 const SelectEmail = (email) => {
-    const sql = `SELECT email FROM user WHERE email LIKE '%${email}%'`
+    const sql = `SELECT * FROM user WHERE email LIKE '%${email}%'`
     const query = dbPool.execute(sql)
     return query
 }
@@ -35,7 +35,7 @@ const Insert = (email, name, password, role, title_id) => {
 }
 
 const SelectById = (id) => {
-    const sql = `SELECT id,email,name,role FROM user WHERE id = ${id}`
+    const sql = `SELECT id,email,password,name,role FROM user WHERE id = ${id}`
     const query = dbPool.execute(sql)
     return query
 }
@@ -45,6 +45,7 @@ const Update = (email, name, role, id) => {
     const query = dbPool.execute(sql)
     return query
 }
+
 
 const Delete = (id) => {
     const sql = `DELETE FROM user WHERE id=${id}`
@@ -58,15 +59,23 @@ const InsertManagerApproval = (id) => {
     return query
 }
 
+const SelectPassword = (password) => {
+    const sql = `SELECT * FROM user WHERE password = '${password}'`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+
 
 export default {
     SelectAll,
     SelectEmail,
+    SelectPassword,
     CountRows,
     SelectById,
     Insert,
     Update,
     Delete,
     SelectManager,
-    InsertManagerApproval
+    InsertManagerApproval,
 }

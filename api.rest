@@ -1,0 +1,13 @@
+###
+GET http://localhost:4001/user/show
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMzLCJlbWFpbCI6InNldHRAbWtuY29ycC5jb20iLCJuYW1lIjoic2V0dCIsImlhdCI6MTY3MzkyNDgxNCwiZXhwIjoxNjczOTI0ODM0fQ.ql30YR5K4HO4xsY7qo8jHU4KcGX1RqiIK9OLf0t9DtA
+
+###
+POST http://localhost:4001/login
+Content-Type: application/json
+
+{
+    "email":"sett@mkncorp.com",
+    "password":"user.100"
+}
+

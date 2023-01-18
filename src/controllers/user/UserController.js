@@ -1,5 +1,10 @@
 import UserModel from "../../models/user/UserModel.js"
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.ACCESS_TOKEN, { expiresIn: '3d' })
+}
 
 const getAll = async (req, res) => {
     try {
@@ -45,7 +50,7 @@ const TestEmail = async (req, res) => {
 
 const countAll = async (req, res) => {
     try {
-        const [row, field] = await UserModel.Count()
+        const [row] = await UserModel.Count()
         res.json(row)
     } catch (error) {
         return res.status(500).json({
@@ -59,7 +64,7 @@ const getById = async (req, res) => {
     let id = req.params.id
 
     try {
-        const [rows, fields] = await UserModel.SelectById(id)
+        const [rows] = await UserModel.SelectById(id)
         if (rows.length < 1) {
             return res.status(201).json({
                 message: 'User not found'
@@ -117,6 +122,7 @@ const createData = async (req, res) => {
         return res.status(201).json({
             message: 'Success create data',
             value: data[0]['insertId'],
+            result: data,
             approveStatus: approve
         })
     } catch (error) {
@@ -143,7 +149,7 @@ const updateData = async (req, res) => {
         })
     }
     try {
-        const [rows, fields] = await UserModel.Update(email, name, role, id)
+        const [rows] = await UserModel.Update(email, name, role, id)
         return res.status(201).json({
             message: 'Update data success',
 
@@ -174,17 +180,56 @@ const deleteData = async (req, res) => {
 const getManager = async (req, res) => {
     try {
         const [row] = await UserModel.SelectManager()
-        res.status(201)
+        return res.status(201)
             .json({
                 message: 'Success get role manager',
                 result: row
             })
     } catch (error) {
-        res.status(500)
+        return res.status(500)
             .json({
                 message: 'Error',
                 Error: error
             })
+    }
+}
+
+const Login = async (req, res) => {
+    const email = req.body.email
+    const password = req.body.password
+    if (!req.body.email) {
+        return res.json({
+            message: 'field email cannot be null'
+        })
+    }
+    if (!req.body.password) {
+        return res.json({
+            message: 'field password cannot be null'
+        })
+    }
+    try {
+        const [user] = await UserModel.SelectEmail(email)
+        if (!user[0]) {
+            return res.status(404).json({
+                message: 'User not registered'
+            })
+        }
+        const match = await bcrypt.compare(password, user[0]['password'])
+        if (!match) {
+            return res.status(404).json({
+                message: 'Incorrect password'
+            })
+        }
+        const token = createToken(user[0]['id'])
+        return res.status(200).json({
+            data: user,
+            token: token
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({
+            message: error
+        })
     }
 }
 
@@ -196,5 +241,6 @@ export default {
     deleteData,
     countAll,
     TestEmail,
-    getManager
+    getManager,
+    Login
 }
