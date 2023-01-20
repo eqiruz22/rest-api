@@ -123,10 +123,39 @@ const updateApprovedManager = async (req, res) => {
     const user_id = req.body.user_id
     const status_id = req.body.status_id
 
+    let transporter = nodemailer.createTransport({
+        host: 'access.mkncorp.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: 'no-reply@mkncorp.com',
+            pass: 'user.100'
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    })
+
+    const send = async () => {
+        let mailOptions = {
+            from: 'no-reply@mkncorp.com',
+            to: `ahmadrifa11620@gmail.com`,
+            subject: 'Test Email notification',
+            text: 'Sukses kirim email'
+        }
+        try {
+            let info = await transporter.sendMail(mailOptions)
+            console.log(info)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     try {
-        const data1 = await PerdinModel.updateApproval(id)
-        const data2 = await PerdinModel.UpdatePerdinStatus(perdin_id)
+        const data1 = await PerdinModel.UpdateApprovalManager(id)
+        const data2 = await PerdinModel.UpdatePerdinStatusByManager(perdin_id)
         const data3 = await PerdinModel.InsertDirectorApproval(perdin_id, prj_id, user_id)
+        send()
         res.status(200)
             .json({
                 message: 'Update success',
@@ -162,10 +191,27 @@ const showWaitingToDirector = async (req, res) => {
     }
 }
 
+const updateApprovedDirector = async (req, res) => {
+    const perdin_id = req.body.perdin_id
+    const id = req.body.id
+    try {
+        const data1 = await PerdinModel.UpdateApprovalByDirector(id)
+        const data2 = await PerdinModel.UpdatePerdinStatusByDirector(perdin_id)
+        return res.status(201).json({
+            message: 'Updated'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: error
+        })
+    }
+}
+
 export default {
     showPerdin,
     createPerdin,
     showWaiting,
     showWaitingToDirector,
-    updateApprovedManager
+    updateApprovedManager,
+    updateApprovedDirector
 }

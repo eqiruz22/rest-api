@@ -33,6 +33,7 @@ router.get('/waiting-approve-manager', PerdinController.showWaiting)
 router.get('/waiting-approve-director', PerdinController.showWaitingToDirector)
 router.post('/perdin-create', PerdinController.createPerdin)
 router.post('/approved-manager', PerdinController.updateApprovedManager)
+router.post('/approved-director', PerdinController.updateApprovedDirector)
 
 
 export default router;

@@ -5,7 +5,8 @@ const SelectPerdin = () => {
                 perdin.id, 
                 prj.prj_name,
                 user.name, 
-                status.proses, 
+                status.proses,
+                perdin.status_id, 
                 perdin.total_received FROM perdin JOIN prj JOIN user JOIN status 
                 WHERE perdin.prj_id = prj.id AND perdin.user_id = user.id AND perdin.status_id = status.id`
     const query = dbPool.execute(sql)
@@ -78,36 +79,40 @@ const waitingToApproveDirector = () => {
     return query
 }
 
-const updateApproval = (id) => {
+const UpdateApprovalManager = (id) => {
     const sql = `UPDATE manager_approval SET status_id = 4 WHERE id = ${id}`
     const query = dbPool.execute(sql)
     return query
 }
 
-const UpdatePerdinStatus = (id) => {
+const UpdatePerdinStatusByManager = (id) => {
     const sql = `UPDATE perdin SET status_id = 2 WHERE id = ${id}`
     const query = dbPool.execute(sql)
     return query
 
 }
 
-const UpdateStatusBatchOne = () => {
-
+const UpdateApprovalByDirector = (id) => {
+    const sql = `UPDATE director_approval SET status_id = 4 WHERE id = ${id}`
+    const query = dbPool.execute(sql)
+    return query
 }
 
-const UpdateStatusComplete = () => {
-
+const UpdatePerdinStatusByDirector = (id) => {
+    const sql = `UPDATE perdin SET status_id = 3 WHERE id = ${id}`
+    const query = dbPool.execute(sql)
+    return query
 }
+
 
 export default {
     SelectPerdin,
     InsertPerdin,
     InsertDirectorApproval,
-    UpdatePerdinStatus,
-    UpdateStatusBatchOne,
-    UpdateStatusComplete,
+    UpdatePerdinStatusByManager,
     waitingToApprove,
     waitingToApproveDirector,
-    updateApproval
-
+    UpdateApprovalManager,
+    UpdateApprovalByDirector,
+    UpdatePerdinStatusByDirector
 }
