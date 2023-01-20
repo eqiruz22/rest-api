@@ -9,7 +9,7 @@ const SelectAll = (search, offset, limit) => {
 }
 
 const SelectEmail = (email) => {
-    const sql = `SELECT * FROM user WHERE email LIKE '%${email}%'`
+    const sql = `SELECT id,email,password,name,role,title_id FROM user WHERE email LIKE '%${email}%'`
     const query = dbPool.execute(sql)
     return query
 }

@@ -4,14 +4,16 @@ import PrjController from '../controllers/prj/PrjController.js';
 import RoleController from '../controllers/role/RoleController.js';
 import TitleController from '../controllers/title/TitleController.js';
 import UserController from '../controllers/user/UserController.js';
+import requireAuth from '../middleware/requireAuth.js';
 const router = express.Router()
 
+
 router.post('/login', UserController.Login)
-router.get('/show', UserController.getAll)
+router.get('/show', requireAuth, UserController.getAll)
 router.get('/show/:id', UserController.getById)
 router.get('/count', UserController.countAll)
 router.get('/show-manager', UserController.getManager)
-router.post('/email', UserController.TestEmail)
+//router.post('/email', UserController.TestEmail)
 router.post('/create', UserController.createData)
 router.patch('/update/:id', UserController.updateData)
 router.delete('/delete/:id', UserController.deleteData)

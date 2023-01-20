@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.ACCESS_TOKEN, { expiresIn: '3d' })
+    return jwt.sign({ id }, process.env.ACCESS_TOKEN, { expiresIn: '1d' })
 }
 
 const getAll = async (req, res) => {
@@ -32,21 +32,21 @@ const getAll = async (req, res) => {
 
 }
 
-const TestEmail = async (req, res) => {
-    const search = req.body.email
-    try {
-        const [row] = await UserModel.SelectEmail(search)
-        if (row.length > 0) {
-            return res.send({ value: row, message: 'email found' })
-        } else {
-            return res.send({ message: 'not found' })
-        }
-    } catch (error) {
-        return res.send({
-            message: error
-        })
-    }
-}
+// const TestEmail = async (req, res) => {
+//     const search = req.body.email
+//     try {
+//         const [row] = await UserModel.SelectEmail(search)
+//         if (row.length > 0) {
+//             return res.send({ value: row, message: 'email found' })
+//         } else {
+//             return res.send({ message: 'not found' })
+//         }
+//     } catch (error) {
+//         return res.send({
+//             message: error
+//         })
+//     }
+// }
 
 const countAll = async (req, res) => {
     try {
@@ -196,14 +196,14 @@ const getManager = async (req, res) => {
 
 const Login = async (req, res) => {
     const email = req.body.email
-    const password = req.body.password
+    const passwd = req.body.password
     if (!req.body.email) {
-        return res.json({
+        return res.status(400).json({
             message: 'field email cannot be null'
         })
     }
     if (!req.body.password) {
-        return res.json({
+        return res.status(400).json({
             message: 'field password cannot be null'
         })
     }
@@ -214,17 +214,22 @@ const Login = async (req, res) => {
                 message: 'User not registered'
             })
         }
-        const match = await bcrypt.compare(password, user[0]['password'])
+        const withoutPassword = user.map(item => {
+            const { password, ...withoutPassword } = item
+            return withoutPassword
+        })
+        const match = await bcrypt.compare(passwd, user[0]['password'])
         if (!match) {
             return res.status(404).json({
-                message: 'Incorrect password'
+                message: 'Incorrect email & password'
             })
         }
         const token = createToken(user[0]['id'])
         return res.status(200).json({
-            data: user,
-            token: token
+            ...withoutPassword[0],
+            token
         })
+
     } catch (error) {
         console.log(error)
         return res.status(400).json({
@@ -240,7 +245,6 @@ export default {
     updateData,
     deleteData,
     countAll,
-    TestEmail,
     getManager,
     Login
 }
