@@ -32,22 +32,6 @@ const getAll = async (req, res) => {
 
 }
 
-// const TestEmail = async (req, res) => {
-//     const search = req.body.email
-//     try {
-//         const [row] = await UserModel.SelectEmail(search)
-//         if (row.length > 0) {
-//             return res.send({ value: row, message: 'email found' })
-//         } else {
-//             return res.send({ message: 'not found' })
-//         }
-//     } catch (error) {
-//         return res.send({
-//             message: error
-//         })
-//     }
-// }
-
 const countAll = async (req, res) => {
     try {
         const [row] = await UserModel.Count()
@@ -118,14 +102,13 @@ const createData = async (req, res) => {
     }
     try {
         const data = await UserModel.Insert(email, name, password, role, title_id)
-        const approve = await UserModel.InsertManagerApproval(data[0]['insertId'])
+        console.log(data)
         return res.status(201).json({
             message: 'Success create data',
-            value: data[0]['insertId'],
             result: data,
-            approveStatus: approve
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while insert',
             error: error

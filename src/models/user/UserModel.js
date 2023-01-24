@@ -1,9 +1,9 @@
 import dbPool from '../../db/Config.js'
 
 const SelectAll = (search, offset, limit) => {
-    const sql = `SELECT user.id,user.email,user.name,role.role_name
-                 FROM user JOIN role
-                 WHERE user.role = role.id AND email LIKE '%${search}%' ORDER BY id DESC LIMIT ${offset},${limit}`
+    const sql = `SELECT user.id,user.email,user.name,role.role_name,title.title_name
+                 FROM user JOIN role JOIN title
+                 WHERE user.role = role.id AND user.title_id = title.id AND email LIKE '%${search}%' ORDER BY id DESC LIMIT ${offset},${limit}`
     const query = dbPool.execute(sql)
     return query
 }
@@ -53,11 +53,6 @@ const Delete = (id) => {
     return query
 }
 
-const InsertManagerApproval = (id) => {
-    const sql = `INSERT INTO manager_approval (perdin_id,status_id) VALUES (${id},2)`
-    const query = dbPool.execute(sql)
-    return query
-}
 
 const SelectPassword = (password) => {
     const sql = `SELECT * FROM user WHERE password = '${password}'`
@@ -77,5 +72,4 @@ export default {
     Update,
     Delete,
     SelectManager,
-    InsertManagerApproval,
 }

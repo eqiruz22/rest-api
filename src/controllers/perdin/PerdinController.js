@@ -99,9 +99,9 @@ const createPerdin = async (req, res) => {
     }
 }
 
-const showWaiting = async (req, res) => {
+const showWaitingToManager = async (req, res) => {
     try {
-        const [row] = await PerdinModel.waitingToApprove()
+        const [row] = await PerdinModel.waitingToApproveManager()
         res.status(200)
             .json({
                 message: 'Succes to show',
@@ -152,7 +152,7 @@ const updateApprovedManager = async (req, res) => {
     }
 
     try {
-        const data1 = await PerdinModel.UpdateApprovalManager(id)
+        const data1 = await PerdinModel.UpdateApprovalByManager(id)
         const data2 = await PerdinModel.UpdatePerdinStatusByManager(perdin_id)
         const data3 = await PerdinModel.InsertDirectorApproval(perdin_id, prj_id, user_id)
         send()
@@ -210,7 +210,7 @@ const updateApprovedDirector = async (req, res) => {
 export default {
     showPerdin,
     createPerdin,
-    showWaiting,
+    showWaitingToManager,
     showWaitingToDirector,
     updateApprovedManager,
     updateApprovedDirector

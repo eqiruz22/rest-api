@@ -45,7 +45,7 @@ const InsertDirectorApproval = (perdin_id, prj_id, user_id) => {
     return query
 }
 
-const waitingToApprove = () => {
+const waitingToApproveManager = () => {
     const sql = `SELECT manager_approval.id,
                   user.name,
                   prj.prj_name,
@@ -79,7 +79,7 @@ const waitingToApproveDirector = () => {
     return query
 }
 
-const UpdateApprovalManager = (id) => {
+const UpdateApprovalByManager = (id) => {
     const sql = `UPDATE manager_approval SET status_id = 4 WHERE id = ${id}`
     const query = dbPool.execute(sql)
     return query
@@ -109,10 +109,10 @@ export default {
     SelectPerdin,
     InsertPerdin,
     InsertDirectorApproval,
-    UpdatePerdinStatusByManager,
-    waitingToApprove,
+    waitingToApproveManager,
     waitingToApproveDirector,
-    UpdateApprovalManager,
+    UpdateApprovalByManager,
     UpdateApprovalByDirector,
+    UpdatePerdinStatusByManager,
     UpdatePerdinStatusByDirector
 }
