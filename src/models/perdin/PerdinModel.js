@@ -15,10 +15,10 @@ const SelectPerdin = () => {
 
 const InsertPerdin = (body, start_date, end_date) => {
     const sql = `INSERT INTO perdin
-                 (prj_id,user_id,title_id,status_id,delegate_approval,official_travel_site,purposes,hotel,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,fee_support,tools,others,total_received) VALUES
+                 (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,fee_support,tools,others,total_received) VALUES
                  ('${body.prj_id}',
                  '${body.user_id}',
-                 '${body.title_id}',
+                 '${body.title_name}',
                   1,
                  '${body.delegate_approval}',
                  '${body.official_travel_site}',
@@ -35,6 +35,12 @@ const InsertPerdin = (body, start_date, end_date) => {
                  '${body.tools}',
                  '${body.others}',
                  '${body.total_received}')`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const InsertManagerApproval = (perdin_id, prj_id, user_id) => {
+    const sql = `INSERT INTO manager_approval (perdin_id,prj_id,user_id,status_id) VALUES ('${perdin_id}','${prj_id}','${user_id}',1)`
     const query = dbPool.execute(sql)
     return query
 }
@@ -108,6 +114,7 @@ const UpdatePerdinStatusByDirector = (id) => {
 export default {
     SelectPerdin,
     InsertPerdin,
+    InsertManagerApproval,
     InsertDirectorApproval,
     waitingToApproveManager,
     waitingToApproveDirector,

@@ -221,6 +221,32 @@ const Login = async (req, res) => {
     }
 }
 
+const showUserWithTitle = async (req, res) => {
+    try {
+        const [row] = await UserModel.SelectUserAndTitle()
+        return res.status(200).json({ result: row })
+    } catch (error) {
+        return res.status(500).json({ message: error })
+    }
+}
+
+const showUserWithTitleById = async (req, res) => {
+    let id = req.params.id
+    try {
+        const [data] = await UserModel.SelectUserTitleById(id)
+        if (data.length < 1) {
+            return res.status(404)
+                .json({ message: 'Not found' })
+        }
+        return res.status(200).json({ ...data[0] })
+    } catch (error) {
+        return res.status(500)
+            .json({
+                message: error
+            })
+    }
+}
+
 export default {
     getAll,
     getById,
@@ -229,5 +255,7 @@ export default {
     deleteData,
     countAll,
     getManager,
-    Login
+    Login,
+    showUserWithTitle,
+    showUserWithTitleById
 }

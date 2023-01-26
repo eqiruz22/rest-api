@@ -84,11 +84,13 @@ const createPerdin = async (req, res) => {
 
     try {
         const data = await PerdinModel.InsertPerdin(body, formatStartDate, formatEndDate)
-        send()
+        const data1 = await PerdinModel.InsertManagerApproval(data[0]['insertId'], req.body.prj_id, req.body.user_id, req.body.status_id)
+        //send()
+        console.log(data[0]['insertId'])
         return res.status(201)
             .json({
                 message: 'Success create data',
-                result: data
+                result: req.body
             })
     } catch (error) {
         return res.status(500)

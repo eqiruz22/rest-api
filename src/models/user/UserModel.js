@@ -1,7 +1,11 @@
 import dbPool from '../../db/Config.js'
 
 const SelectAll = (search, offset, limit) => {
-    const sql = `SELECT user.id,user.email,user.name,role.role_name,title.title_name
+    const sql = `SELECT user.id,user.email,user.name,role.role_name,title.title_name,title.rent_house,
+                 title.meal_allowance,
+                 title.hardship_allowance,
+                 title.pulsa_allowance,
+                 title.car_rent
                  FROM user JOIN role JOIN title
                  WHERE user.role = role.id AND user.title_id = title.id AND email LIKE '%${search}%' ORDER BY id DESC LIMIT ${offset},${limit}`
     const query = dbPool.execute(sql)
@@ -46,13 +50,11 @@ const Update = (email, name, role, id) => {
     return query
 }
 
-
 const Delete = (id) => {
     const sql = `DELETE FROM user WHERE id=${id}`
     const query = dbPool.execute(sql)
     return query
 }
-
 
 const SelectPassword = (password) => {
     const sql = `SELECT * FROM user WHERE password = '${password}'`
@@ -60,16 +62,43 @@ const SelectPassword = (password) => {
     return query
 }
 
+const SelectUserAndTitle = () => {
+    const sql = `SELECT
+                user.id,
+                user.name,
+                title.title_name,
+                title.rent_house,
+                title.meal_allowance,
+                title.hardship_allowance,
+                title.pulsa_allowance,
+                title.car_rent FROM user JOIN title WHERE user.title_id = title.id`
+    const query = dbPool.execute(sql)
+    return query
+}
 
-
+const SelectUserTitleById = (id) => {
+    const sql = `SELECT
+    user.id,
+    user.name,
+    title.title_name,
+    title.rent_house,
+    title.meal_allowance,
+    title.hardship_allowance,
+    title.pulsa_allowance,
+    title.car_rent FROM user JOIN title WHERE user.title_id = title.id AND user.id = ${id}`
+    const query = dbPool.execute(sql)
+    return query
+}
 export default {
     SelectAll,
     SelectEmail,
     SelectPassword,
+    SelectUserTitleById,
     CountRows,
     SelectById,
     Insert,
     Update,
     Delete,
     SelectManager,
+    SelectUserAndTitle
 }

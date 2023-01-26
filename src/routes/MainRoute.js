@@ -16,6 +16,7 @@ router.get('/show-manager', UserController.getManager)
 router.post('/create', UserController.createData)
 router.patch('/update/:id', UserController.updateData)
 router.delete('/delete/:id', UserController.deleteData)
+router.get('/show/title-user/:id', UserController.showUserWithTitleById)
 
 router.get('/role', RoleController.showAll)
 
