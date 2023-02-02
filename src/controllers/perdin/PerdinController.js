@@ -19,6 +19,44 @@ const showPerdin = async (req, res) => {
     }
 }
 
+const showPerdinDaily = async (req, res) => {
+    try {
+
+        const [row] = await PerdinModel.SelectPerdinDaily()
+        return res.status(200)
+            .json({
+                message: 'success get data',
+                result: row
+            })
+    } catch (error) {
+        return res.status(500)
+            .json({
+                error: error
+            })
+    }
+}
+
+const showPerdinDailyById = async (req, res) => {
+    let id = req.params.id
+    try {
+        const [row] = await PerdinModel.SelectPerdinDailyId(id)
+        if (row.length < 1) {
+            return res.status(201)
+                .json({
+                    message: 'no data for show'
+                })
+        }
+        console.log(row)
+        return res.status(200)
+            .json({
+                message: 'show data',
+                result: row
+            })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 const createPerdin = async (req, res) => {
     let { body } = req
     const formatDateStart = (start) => {
@@ -84,9 +122,8 @@ const createPerdin = async (req, res) => {
 
     try {
         const data = await PerdinModel.InsertPerdin(body, formatStartDate, formatEndDate)
-        const data1 = await PerdinModel.InsertManagerApproval(data[0]['insertId'], req.body.prj_id, req.body.user_id, req.body.status_id)
+        //const data1 = await PerdinModel.InsertManagerApproval(data[0]['insertId'], req.body.prj_id, req.body.user_id, req.body.status_id)
         //send()
-        console.log(data[0]['insertId'])
         return res.status(201)
             .json({
                 message: 'Success create data',
@@ -98,6 +135,57 @@ const createPerdin = async (req, res) => {
                 message: 'Error',
                 result: error
             })
+    }
+}
+
+const createPerdinDaily = async (req, res) => {
+    const { body } = req
+    const start = req.body.start_date
+    const end = req.body.end_date
+    const startDate = (start) => {
+        const d = new Date(start)
+        let month = '' + (d.getMonth() + 1)
+        let day = '' + d.getDate()
+        const year = d.getFullYear()
+
+        if (month.length < 2) month = '0' + month
+        if (day.length < 2) day = '0' + day
+
+        return [year, month, day].join('-')
+    }
+
+    const endDate = (end) => {
+        const d = new Date(end)
+        let month = '' + (d.getMonth() + 1)
+        let day = '' + d.getDate()
+        const year = d.getFullYear()
+
+        if (month.length < 2) month = '0' + month
+        if (day.length < 2) day = '0' + day
+
+        return [year, month, day].join('-')
+    }
+
+    if (!req.body) {
+        return res.status(400).json({
+            message: 'all field is required'
+        })
+    }
+
+    const resultStart = startDate(start)
+    const resultEnd = endDate(end)
+    try {
+        const data = await PerdinModel.InsertPerdinDaily(body, resultStart, resultEnd)
+        console.log(data)
+        res.status(201).json({
+            message: 'success create data'
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: 'Error',
+            error: error
+        })
     }
 }
 
@@ -211,7 +299,10 @@ const updateApprovedDirector = async (req, res) => {
 
 export default {
     showPerdin,
+    showPerdinDaily,
+    showPerdinDailyById,
     createPerdin,
+    createPerdinDaily,
     showWaitingToManager,
     showWaitingToDirector,
     updateApprovedManager,

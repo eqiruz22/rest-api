@@ -39,13 +39,13 @@ const Insert = (email, name, password, role, title_id) => {
 }
 
 const SelectById = (id) => {
-    const sql = `SELECT id,email,password,name,role FROM user WHERE id = ${id}`
+    const sql = `SELECT id,email,password,name,role,title_id FROM user WHERE id = ${id}`
     const query = dbPool.execute(sql)
     return query
 }
 
-const Update = (email, name, role, id) => {
-    const sql = `UPDATE user SET email='${email}',name='${name}',role='${role}' WHERE id=${id}`
+const Update = (email, name, role, title_id, id) => {
+    const sql = `UPDATE user SET email='${email}',name='${name}',role='${role}',title_id='${title_id}' WHERE id=${id}`
     const query = dbPool.execute(sql)
     return query
 }

@@ -9,7 +9,7 @@ const createToken = (id) => {
 const getAll = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 0
-        const limit = parseInt(req.query.limit) || 5
+        const limit = parseInt(req.query.limit) || 10
         const search = req.query.query || ''
         const offset = limit * page
         const [totalRow] = await UserModel.CountRows(search)
@@ -121,6 +121,7 @@ const updateData = async (req, res) => {
     const email = req.body.email
     const name = req.body.name
     const role = req.body.role
+    const title_id = req.body.title_id
     if (!req.body.email) {
         return res.json({
             message: 'email cannot be null'
@@ -132,12 +133,13 @@ const updateData = async (req, res) => {
         })
     }
     try {
-        const [rows] = await UserModel.Update(email, name, role, id)
+        const [rows] = await UserModel.Update(email, name, role, title_id, id)
+        console.log(rows)
         return res.status(201).json({
             message: 'Update data success',
-
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while update',
             error: error

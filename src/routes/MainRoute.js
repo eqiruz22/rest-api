@@ -29,9 +29,12 @@ router.patch('/title/update/:id', TitleController.UpdateById)
 router.delete('/title/delete/:id', TitleController.destroyTitle)
 
 router.get('/perdin-show', PerdinController.showPerdin)
+router.get('/perdin-show-daily', PerdinController.showPerdinDaily)
+router.get('/perdin-show-daily/:id', PerdinController.showPerdinDailyById)
 router.get('/waiting-approve-manager', PerdinController.showWaitingToManager)
 router.get('/waiting-approve-director', PerdinController.showWaitingToDirector)
 router.post('/perdin-create', PerdinController.createPerdin)
+router.post('/perdin-daily', PerdinController.createPerdinDaily)
 router.post('/approved-manager', PerdinController.updateApprovedManager)
 router.post('/approved-director', PerdinController.updateApprovedDirector)
 
