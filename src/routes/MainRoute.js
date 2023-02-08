@@ -23,6 +23,8 @@ router.get('/role', RoleController.showAll)
 router.get('/prj', PrjController.fetchPrj)
 router.get('/prj/:id', PrjController.fetchById)
 router.post('/prj/create', PrjController.createPrj)
+router.patch('/prj/update/:id', PrjController.updatePrj)
+router.delete('/prj/delete/:id', PrjController.destroyPrj)
 
 router.get('/title', TitleController.showTitle)
 router.get('/title/:id', TitleController.findById)

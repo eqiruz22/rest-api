@@ -2,11 +2,21 @@ import TitleModel from "../../models/title/TitleModel.js";
 
 const showTitle = async (req, res) => {
     try {
-        const [response] = await TitleModel.SelectTitle()
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [count] = await TitleModel.CountTitle(search)
+        const [response] = await TitleModel.SelectTitle(search, offset, limit)
+        const totalPage = Math.ceil(count[0]['title'] / limit)
         res.status(200)
             .json({
                 message: 'Success show title',
-                value: response
+                value: response,
+                page: page,
+                limit: limit,
+                row: count[0]['title'],
+                totalPage: totalPage
             })
     } catch (error) {
         res.status(500)

@@ -21,8 +21,14 @@ const showPerdin = async (req, res) => {
 
 const showPerdinDaily = async (req, res) => {
     try {
-
         const [row] = await PerdinModel.SelectPerdinDaily()
+        if (row.length < 1) {
+            return res.status(201)
+                .json({
+                    message: 'no data for show',
+                    result: row
+                })
+        }
         return res.status(200)
             .json({
                 message: 'success get data',
@@ -43,7 +49,8 @@ const showPerdinDailyById = async (req, res) => {
         if (row.length < 1) {
             return res.status(201)
                 .json({
-                    message: 'no data for show'
+                    message: 'no data for show',
+                    result: row
                 })
         }
         console.log(row)

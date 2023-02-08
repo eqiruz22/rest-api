@@ -24,6 +24,7 @@ const getAll = async (req, res) => {
             totalPage: totalPage
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: "Server error",
             error: error

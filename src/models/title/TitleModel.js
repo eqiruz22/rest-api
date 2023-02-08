@@ -1,7 +1,8 @@
 import dbPool from '../../db/Config.js'
 
-const SelectTitle = () => {
-    const sql = 'SELECT id,title_name,rent_house,meal_allowance,hardship_allowance,pulsa_allowance,car_rent FROM title'
+const SelectTitle = (search, offset, limit) => {
+    const sql = `SELECT id,title_name,rent_house,meal_allowance,hardship_allowance,pulsa_allowance,car_rent 
+                FROM title WHERE title_name LIKE '%${search}%' ORDER BY id LIMIT ${offset},${limit}`
     const query = dbPool.execute(sql)
     return query
 }
@@ -32,6 +33,12 @@ const Update = (title, rent, meal, hardship, pulsa, car, id) => {
     return query
 }
 
+const CountTitle = (search) => {
+    const sql = `SELECT COUNT(title_name) AS title FROM title WHERE title_name LIKE '%${search}%'`
+    const query = dbPool.execute(sql)
+    return query
+}
+
 const Delete = (id) => {
     const sql = `DELETE FROM title WHERE id = ${id}`
     const query = dbPool.execute(sql)
@@ -42,6 +49,7 @@ export default {
     SelectTitle,
     InsertTitle,
     SelectById,
+    CountTitle,
     Update,
     Delete
 }

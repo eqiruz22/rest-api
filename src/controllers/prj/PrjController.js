@@ -2,14 +2,26 @@ import PrjModel from "../../models/prj/PrjModel.js";
 
 const fetchPrj = async (req, res) => {
     try {
-        const [row] = await PrjModel.SelectPrj()
-        res.status(201)
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [count] = await PrjModel.CountPrj(search)
+        const [row] = await PrjModel.SelectPrj(search, offset, limit)
+        const totalPage = Math.ceil(count[0]['prj'] / limit)
+        console.log(row)
+        return res.status(201)
             .json({
                 message: 'Show prj',
-                result: row
+                result: row,
+                page: page,
+                limit: limit,
+                row: count[0]['prj'],
+                totalPage: totalPage
             })
     } catch (error) {
-        res.status(500)
+        console.log(error)
+        return res.status(500)
             .json({
                 message: 'Error',
                 Error: error
@@ -55,8 +67,43 @@ const fetchById = async (req, res) => {
     }
 }
 
+const updatePrj = async (req, res) => {
+    let id = req.params.id
+    const prj_name = req.body.prj_name
+    const status = req.body.status
+
+    if (!req.body.prj_name) {
+        return res.status(400).json({ message: 'PRJ name cannot be null' })
+    }
+    if (!req.body.status) {
+        return res.status(400).json({ message: 'status prj must be open or closed' })
+    }
+
+    try {
+        const data = await PrjModel.UpdatePrj(prj_name, status, id)
+        return res.status(200).json({ message: 'Update success' })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error while update',
+            error: error
+        })
+    }
+}
+
+const destroyPrj = async (req, res) => {
+    let id = req.params.id
+    try {
+        const data = await PrjModel.DeletePrj(id)
+        return res.status(200).json({ message: 'Delete success' })
+    } catch (error) {
+        return res.status(500).json({ message: 'Error while delete data' })
+    }
+}
+
 export default {
     fetchPrj,
     fetchById,
-    createPrj
+    createPrj,
+    updatePrj,
+    destroyPrj
 }
