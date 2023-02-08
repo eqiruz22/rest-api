@@ -20,7 +20,9 @@ router.get('/show/title-user/:id', UserController.showUserWithTitleById)
 
 router.get('/role', RoleController.showAll)
 
-router.get('/prj', PrjController.fetchById)
+router.get('/prj', PrjController.fetchPrj)
+router.get('/prj/:id', PrjController.fetchById)
+router.post('/prj/create', PrjController.createPrj)
 
 router.get('/title', TitleController.showTitle)
 router.get('/title/:id', TitleController.findById)

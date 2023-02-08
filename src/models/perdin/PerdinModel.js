@@ -86,7 +86,7 @@ const SelectPerdinDailyId = (id) => {
 
 const InsertPerdin = (body, start_date, end_date) => {
     const sql = `INSERT INTO perdin
-                 (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,fee_support,tools,others,total_received) VALUES
+                 (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,rent_house,meal_allowance,hardship_allowance,pulsa_allowance,car_rent,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,fee_support,tools,others,total_received) VALUES
                  ('${body.prj_id}',
                  '${body.user_id}',
                  '${body.title_name}',
@@ -95,6 +95,11 @@ const InsertPerdin = (body, start_date, end_date) => {
                  '${body.official_travel_site}',
                  '${body.purposes}',
                  '${body.hotel}',
+                 '${body.rent_house}',
+                 '${body.meal_allowance}',
+                 '${body.hardship_allowance}',
+                 '${body.pulsa_allowance}',
+                 '${body.car_rent}',
                  '${body.transport}',
                  '${body.local_transport}',
                  '${body.airfare}',
@@ -112,7 +117,7 @@ const InsertPerdin = (body, start_date, end_date) => {
 
 const InsertPerdinDaily = (body, start_date, end_date) => {
     const sql = `INSERT INTO perdin_harian
-                 (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,days,fee_support,tools,others,total_received) VALUES
+                 (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,rent_house,meal_allowance,hardship_allowance,pulsa_allowance,car_rent,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,days,fee_support,tools,others,total_received) VALUES
                  ('${body.prj_id}',
                  '${body.user_id}',
                  '${body.title_name}',
@@ -121,6 +126,11 @@ const InsertPerdinDaily = (body, start_date, end_date) => {
                  '${body.official_travel_site}',
                  '${body.purposes}',
                  '${body.hotel}',
+                 '${body.rent_house}',
+                 '${body.meal_allowance}',
+                 '${body.hardship_allowance}',
+                 '${body.pulsa_allowance}',
+                 '${body.car_rent}',
                  '${body.transport}',
                  '${body.local_transport}',
                  '${body.airfare}',

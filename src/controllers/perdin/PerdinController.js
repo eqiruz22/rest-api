@@ -127,7 +127,6 @@ const createPerdin = async (req, res) => {
         return res.status(201)
             .json({
                 message: 'Success create data',
-                result: req.body
             })
     } catch (error) {
         return res.status(500)
@@ -176,7 +175,6 @@ const createPerdinDaily = async (req, res) => {
     const resultEnd = endDate(end)
     try {
         const data = await PerdinModel.InsertPerdinDaily(body, resultStart, resultEnd)
-        console.log(data)
         res.status(201).json({
             message: 'success create data'
         })
