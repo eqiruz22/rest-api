@@ -64,6 +64,8 @@ const getById = async (req, res) => {
     }
 }
 
+
+
 const createData = async (req, res) => {
     const email = req.body.email
     const name = req.body.name
@@ -101,6 +103,11 @@ const createData = async (req, res) => {
             message: 'Title cannot be null'
         })
     }
+    if (!req.body.atasan_id) {
+        return res.json({
+            message: 'Divisi head cannot be null'
+        })
+    }
     try {
         const data = await UserModel.Insert(email, name, password, role, title_id)
         console.log(data)
@@ -123,6 +130,8 @@ const updateData = async (req, res) => {
     const name = req.body.name
     const role = req.body.role
     const title_id = req.body.title_id
+    const password = req.body.password
+    const hash = await bcrypt.hash(password, 10)
     if (!req.body.email) {
         return res.json({
             message: 'email cannot be null'
@@ -133,19 +142,67 @@ const updateData = async (req, res) => {
             message: 'role cannot be null'
         })
     }
-    try {
-        const [rows] = await UserModel.Update(email, name, role, title_id, id)
-        console.log(rows)
-        return res.status(201).json({
-            message: 'Update data success',
-        })
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({
-            message: 'Error while update',
-            error: error
-        })
+
+    if (req.body.has_role === 1) {
+        if (!req.body.password) {
+            try {
+                const [rows] = await UserModel.Update(email, name, role, title_id, id)
+                console.log(rows)
+                return res.status(201).json({
+                    message: 'Update data success',
+                })
+            } catch (error) {
+                console.log(error)
+                return res.status(500).json({
+                    message: 'Error while update',
+                    error: error
+                })
+            }
+        } else {
+            try {
+                const [data] = await UserModel.UpdateWithPassword(email, name, role, title_id, hash, id)
+                console.log(data)
+                return res.status(201).json({
+                    message: 'Update data with password success'
+                })
+            } catch (error) {
+                console.log(error)
+                return res.status(500).json({
+                    message: 'Error while update with password',
+                    message: error
+                })
+            }
+        }
+    } else {
+        if (!req.body.password) {
+            try {
+                const [rows] = await UserModel.UpdateForUser(email, name, id)
+                console.log(rows)
+                return res.status(201).json({
+                    message: 'Update data success'
+                })
+            } catch (error) {
+                console.log(error)
+                return res.status(500).json({
+                    message: 'Error while update data user'
+                })
+            }
+        } else {
+            try {
+                const [data] = await UserModel.UpdateForUserWithPassword(email, name, hash, id)
+                console.log(data)
+                return res.status(201).json({
+                    message: 'Update data with password'
+                })
+            } catch (error) {
+                console.log(error)
+                return res.status(500).json({
+                    message: 'Error while update data user'
+                })
+            }
+        }
     }
+
 }
 
 const deleteData = async (req, res) => {

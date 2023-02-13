@@ -12,6 +12,14 @@ const SelectAll = (search, offset, limit) => {
     return query
 }
 
+const SelectName = () => {
+    const sql = `SELECT user.id,user.name FROM user 
+                 JOIN title WHERE user.title_id = title.id 
+                 AND title.title_name REGEXP 'Sr Manager|Manager|Director' AND NOT title.title_name REGEXP 'Site Manager'`
+    const query = dbPool.execute(sql)
+    return query
+}
+
 const SelectEmail = (email) => {
     const sql = `SELECT id,email,password,name,role,title_id FROM user WHERE email LIKE '%${email}%'`
     const query = dbPool.execute(sql)
@@ -25,7 +33,9 @@ const CountRows = (search) => {
 }
 
 const SelectManager = () => {
-    const sql = `SELECT user.id,user.email,user.name,title.title_name FROM user JOIN title WHERE title.title_name LIKE '%Manager' AND user.title_id = title.id`
+    const sql = `SELECT user.id,user.email,user.name,title.title_name 
+                 FROM user JOIN title WHERE title.title_name REGEXP 'Manager|Sr Manager|Director'
+                 AND NOT title_name REGEXP 'Site Manager' AND user.title_id = title.id`
     const query = dbPool.execute(sql)
     return query
 }
@@ -46,6 +56,24 @@ const SelectById = (id) => {
 
 const Update = (email, name, role, title_id, id) => {
     const sql = `UPDATE user SET email='${email}',name='${name}',role='${role}',title_id='${title_id}' WHERE id=${id}`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const UpdateWithPassword = (email, name, role, title_id, password, id) => {
+    const sql = `UPDATE user SET email='${email}',name='${name}',role='${role}',title_id='${title_id}',password='${password}' WHERE id=${id}`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const UpdateForUser = (email, name, id) => {
+    const sql = `UPDATE user SET email='${email}',name='${name}' WHERE id=${id}`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const UpdateForUserWithPassword = (email, name, password, id) => {
+    const sql = `UPDATE user SET email='${email}',name='${name}',password='${password}' WHERE id=${id}`
     const query = dbPool.execute(sql)
     return query
 }
@@ -94,10 +122,14 @@ export default {
     SelectEmail,
     SelectPassword,
     SelectUserTitleById,
+    SelectName,
     CountRows,
     SelectById,
     Insert,
     Update,
+    UpdateWithPassword,
+    UpdateForUser,
+    UpdateForUserWithPassword,
     Delete,
     SelectManager,
     SelectUserAndTitle
