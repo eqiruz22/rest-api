@@ -1,4 +1,5 @@
 import express from 'express'
+import DivisiController from '../controllers/divisi/DivisiController.js';
 import PerdinController from '../controllers/perdin/PerdinController.js';
 import PrjController from '../controllers/prj/PrjController.js';
 import RoleController from '../controllers/role/RoleController.js';
@@ -17,6 +18,7 @@ router.post('/create', UserController.createData)
 router.patch('/update/:id', UserController.updateData)
 router.delete('/delete/:id', UserController.deleteData)
 router.get('/show/title-user/:id', UserController.showUserWithTitleById)
+router.get('/name', UserController.getName)
 
 router.get('/role', RoleController.showAll)
 
@@ -42,5 +44,10 @@ router.post('/perdin-daily', PerdinController.createPerdinDaily)
 router.post('/approved-manager', PerdinController.updateApprovedManager)
 router.post('/approved-director', PerdinController.updateApprovedDirector)
 
+router.get('/divisi', DivisiController.fetchDivisiWithHead)
+router.get('/divisi/:id', DivisiController.fetchDivisiById)
+router.post('/divisi-create', DivisiController.createDivisi)
+router.patch('/divisi/:id', DivisiController.updateDivisi)
+router.delete('/divisi/:id', DivisiController.destroyDivisi)
 
 export default router;

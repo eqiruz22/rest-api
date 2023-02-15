@@ -307,9 +307,25 @@ const showUserWithTitleById = async (req, res) => {
     }
 }
 
+const getName = async (req, res) => {
+    try {
+        const [row] = await UserModel.SelectName()
+        return res.status(200).json({
+            message: 'Show all name',
+            result: row
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error while fetching name',
+            error: error
+        })
+    }
+}
+
 export default {
     getAll,
     getById,
+    getName,
     createData,
     updateData,
     deleteData,

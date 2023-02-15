@@ -4,11 +4,21 @@ import nodemailer from 'nodemailer'
 
 const showPerdin = async (req, res) => {
     try {
-        const [data] = await PerdinModel.SelectPerdin()
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [totalRow] = await PerdinModel.CountPerdin(search)
+        const [data] = await PerdinModel.SelectPerdin(search, offset, limit)
+        const totalPage = Math.ceil(totalRow[0]['perdin'] / limit)
         res.status(200)
             .json({
                 message: 'Show All data',
-                result: data
+                result: data,
+                page: page,
+                limit: limit,
+                row: totalRow[0]['perdin'],
+                totalPage: totalPage
             })
     } catch (error) {
         res.status(500)

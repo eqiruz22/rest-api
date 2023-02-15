@@ -13,9 +13,7 @@ const SelectAll = (search, offset, limit) => {
 }
 
 const SelectName = () => {
-    const sql = `SELECT user.id,user.name FROM user 
-                 JOIN title WHERE user.title_id = title.id 
-                 AND title.title_name REGEXP 'Sr Manager|Manager|Director' AND NOT title.title_name REGEXP 'Site Manager'`
+    const sql = `SELECT id,name FROM user`
     const query = dbPool.execute(sql)
     return query
 }

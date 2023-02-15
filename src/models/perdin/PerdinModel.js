@@ -1,6 +1,6 @@
 import dbPool from '../../db/Config.js'
 
-const SelectPerdin = () => {
+const SelectPerdin = (search, offset, limit) => {
     const sql = `SELECT
                 perdin.id,
                 perdin.title_name,
@@ -22,12 +22,13 @@ const SelectPerdin = () => {
                 status.proses,
                 perdin.status_id, 
                 perdin.total_received FROM perdin JOIN prj JOIN user JOIN status 
-                WHERE perdin.prj_id = prj.id AND perdin.user_id = user.id AND perdin.status_id = status.id`
+                WHERE perdin.prj_id = prj.id AND perdin.user_id = user.id AND perdin.status_id = status.id
+                AND user.name LIKE '%${search}%' ORDER BY id DESC LIMIT ${offset},${limit}`
     const query = dbPool.execute(sql)
     return query
 }
 
-const SelectPerdinDaily = () => {
+const SelectPerdinDaily = (search, offset, limit) => {
     const sql = `SELECT
                 perdin_harian.id,
                 perdin_harian.title_name,
@@ -50,7 +51,8 @@ const SelectPerdinDaily = () => {
                 prj.prj_name,
                 status.proses,
                 perdin_harian.status_id, perdin_harian.user_id FROM perdin_harian JOIN prj JOIN user JOIN status
-                WHERE perdin_harian.prj_id = prj.id AND perdin_harian.user_id = user.id and perdin_harian.status_id = status.id`
+                WHERE perdin_harian.prj_id = prj.id AND perdin_harian.user_id = user.id and perdin_harian.status_id = status.id
+                AND user.name LIKe '%${select}%' ORDER BY id DESC LIMIT ${offset},${limit}`
     const query = dbPool.execute(sql)
     return query
 }
@@ -218,6 +220,11 @@ const UpdatePerdinStatusByDirector = (id) => {
     return query
 }
 
+const CountPerdin = (search) => {
+    const sql = `SELECT COUNT(user.name) as perdin FROM perdin JOIN user WHERE user.name LIKE '%${search}%'`
+    const query = dbPool.execute(sql)
+    return query
+}
 
 export default {
     SelectPerdin,
@@ -232,5 +239,6 @@ export default {
     UpdateApprovalByManager,
     UpdateApprovalByDirector,
     UpdatePerdinStatusByManager,
-    UpdatePerdinStatusByDirector
+    UpdatePerdinStatusByDirector,
+    CountPerdin
 }
