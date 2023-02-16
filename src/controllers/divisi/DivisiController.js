@@ -29,14 +29,41 @@ const createDivisi = async (req, res) => {
     }
 }
 
-const fetchDivisiWithHead = async (req, res) => {
+const fetchDivisi = async (req, res) => {
     try {
-        const [row] = await DivisiModel.SelectDivisiWithHead()
+        const [row] = await DivisiModel.SelectDivisi()
         return res.status(200).json({
-            message: 'Show all divisi',
+            message: 'show all divisi',
             result: row
         })
     } catch (error) {
+        return res.status(500).json({
+            message: 'Error fetching data divisi',
+            error: error
+        })
+    }
+}
+
+const fetchDivisiWithHead = async (req, res) => {
+
+    try {
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [totalRow] = await DivisiModel.CountDivisi(search)
+        const [row] = await DivisiModel.SelectDivisiWithHead(search, offset, limit)
+        const totalPage = Math.ceil(totalRow[0]['divisi'] / limit)
+        return res.status(200).json({
+            message: 'Show all divisi with head departement',
+            result: row,
+            page: page,
+            limit: limit,
+            row: totalRow[0]['divisi'],
+            totalPage: totalPage
+        })
+    } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while fetch data divisi',
             error: error
@@ -104,6 +131,7 @@ const destroyDivisi = async (req, res) => {
 
 export default {
     createDivisi,
+    fetchDivisi,
     fetchDivisiWithHead,
     fetchDivisiById,
     updateDivisi,

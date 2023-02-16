@@ -6,9 +6,21 @@ const InsertDivisi = (divisi_name, divisi_head) => {
     return query
 }
 
-const SelectDivisiWithHead = () => {
+const SelectDivisi = () => {
+    const sql = `SELECT id,divisi_name FROM divisi`
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const SelectDivisiWithHead = (search, offset, limit) => {
     const sql = `SELECT divisi.id,divisi.divisi_name,user.name FROM divisi
-                JOIN user WHERE divisi.divisi_head = user.id`
+                JOIN user WHERE divisi.divisi_head = user.id AND divisi.divisi_name LIKE '%${search}%' ORDER BY divisi.id DESC LIMIT ${offset},${limit} `
+    const query = dbPool.execute(sql)
+    return query
+}
+
+const CountDivisi = (search) => {
+    const sql = `SELECT COUNT(divisi_name) as divisi FROM divisi WHERE divisi_name LIKE '${search}'`
     const query = dbPool.execute(sql)
     return query
 }
@@ -34,8 +46,10 @@ const DeleteDivisi = (id) => {
 
 export default {
     InsertDivisi,
+    SelectDivisi,
     SelectDivisiWithHead,
     SelectDivisiById,
     UpdateDivisi,
-    DeleteDivisi
+    DeleteDivisi,
+    CountDivisi
 }

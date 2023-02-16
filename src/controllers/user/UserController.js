@@ -52,9 +52,11 @@ const getById = async (req, res) => {
         const [rows] = await UserModel.SelectById(id)
         if (rows.length < 1) {
             return res.status(201).json({
-                message: 'User not found'
+                message: 'User not found',
+                value: rows
             })
         }
+        console.log(rows)
         return res.status(200).json({
             message: 'Show user by id',
             value: rows
@@ -72,44 +74,45 @@ const createData = async (req, res) => {
     const password = await bcrypt.hash(req.body.password, 10)
     const role = req.body.role
     const title_id = req.body.title_id
+    const divisi = req.body.divisi_id
 
     if (!req.body.email) {
-        return res.json({
+        return res.status(400).json({
             message: 'email cannot be null'
         })
     }
     if (!req.body.name) {
-        return res.json({
+        return res.status(400).json({
             message: 'name cannot be null'
         })
     }
     if (!req.body.password) {
-        return res.json({
+        return res.status(400).json({
             message: 'password cannot be null'
         })
     }
     if (req.body.password.length < 5) {
-        return res.json({
+        return res.status(400).json({
             message: 'password cannot less than 5 character'
         })
     }
     if (!req.body.role) {
-        return res.json({
+        return res.status(400).json({
             message: 'role cannot be null'
         })
     }
     if (!req.body.title_id) {
-        return res.json({
+        return res.status(400).json({
             message: 'Title cannot be null'
         })
     }
-    if (!req.body.atasan_id) {
-        return res.json({
-            message: 'Divisi head cannot be null'
+    if (!req.body.divisi_id) {
+        return res.status(400).json({
+            message: 'Divisi cannot be null'
         })
     }
     try {
-        const data = await UserModel.Insert(email, name, password, role, title_id)
+        const data = await UserModel.Insert(email, name, password, role, title_id, divisi)
         console.log(data)
         return res.status(201).json({
             message: 'Success create data',
@@ -132,6 +135,7 @@ const updateData = async (req, res) => {
     const title_id = req.body.title_id
     const password = req.body.password
     const hash = await bcrypt.hash(password, 10)
+    const divisi = req.body.divisi_id
     if (!req.body.email) {
         return res.json({
             message: 'email cannot be null'
@@ -146,7 +150,7 @@ const updateData = async (req, res) => {
     if (req.body.has_role === 1) {
         if (!req.body.password) {
             try {
-                const [rows] = await UserModel.Update(email, name, role, title_id, id)
+                const [rows] = await UserModel.Update(email, name, role, title_id, divisi, id)
                 console.log(rows)
                 return res.status(201).json({
                     message: 'Update data success',
@@ -160,7 +164,7 @@ const updateData = async (req, res) => {
             }
         } else {
             try {
-                const [data] = await UserModel.UpdateWithPassword(email, name, role, title_id, hash, id)
+                const [data] = await UserModel.UpdateWithPassword(email, name, role, title_id, divisi, hash, id)
                 console.log(data)
                 return res.status(201).json({
                     message: 'Update data with password success'
