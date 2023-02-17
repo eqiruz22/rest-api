@@ -178,10 +178,26 @@ const destroyTitle = async (req, res) => {
     }
 }
 
+const fetchTitleName = async (req, res) => {
+    try {
+        const [row] = await TitleModel.SelectTitleName()
+        return res.status(200).json({
+            message: 'Show title name',
+            result: row
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error fetching title',
+            error: error
+        })
+    }
+}
+
 export default {
     showTitle,
     createTitle,
     findById,
     UpdateById,
-    destroyTitle
+    destroyTitle,
+    fetchTitleName
 }

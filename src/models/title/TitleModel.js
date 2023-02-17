@@ -45,11 +45,18 @@ const Delete = (id) => {
     return query
 }
 
+const SelectTitleName = () => {
+    const sql = `SELECT id,title_name FROM title`
+    const query = dbPool.execute(sql)
+    return query
+}
+
 export default {
     SelectTitle,
     InsertTitle,
     SelectById,
     CountTitle,
     Update,
-    Delete
+    Delete,
+    SelectTitleName
 }
