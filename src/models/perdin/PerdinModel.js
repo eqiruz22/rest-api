@@ -23,8 +23,9 @@ const SelectPerdin = (search, offset, limit) => {
                 perdin.status_id, 
                 perdin.total_received FROM perdin JOIN prj JOIN user JOIN status 
                 WHERE perdin.prj_id = prj.id AND perdin.user_id = user.id AND perdin.status_id = status.id
-                AND user.name LIKE '%${search}%' ORDER BY id DESC LIMIT ${offset},${limit}`
-    const query = dbPool.execute(sql)
+                AND user.name LIKE ? ORDER BY perdin.id DESC LIMIT ? OFFSET ?`
+    const value = [`%${search}%`, limit, offset]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
@@ -51,13 +52,14 @@ const SelectPerdinDaily = (search, offset, limit) => {
                 prj.prj_name,
                 status.proses,
                 perdin_harian.status_id, perdin_harian.user_id FROM perdin_harian JOIN prj JOIN user JOIN status
-                WHERE perdin_harian.prj_id = prj.id AND perdin_harian.user_id = user.id and perdin_harian.status_id = status.id
-                AND user.name LIKe '%${select}%' ORDER BY id DESC LIMIT ${offset},${limit}`
-    const query = dbPool.execute(sql)
+                WHERE perdin_harian.prj_id = prj.id AND perdin_harian.user_id = user.id AND perdin_harian.status_id = status.id
+                AND user.name LIKE ? ORDER BY perdin_harian.id DESC LIMIT ? OFFSET ?`
+    const value = [`%${search}%`, limit, offset]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
-const SelectPerdinDailyId = (id) => {
+const SelectPerdinDailyId = (id, search, offset, limit) => {
     const sql = `SELECT
                 perdin_harian.id,
                 perdin_harian.title_name,
@@ -81,83 +83,48 @@ const SelectPerdinDailyId = (id) => {
                 status.proses,
                 perdin_harian.status_id, perdin_harian.user_id FROM perdin_harian JOIN prj JOIN user JOIN status
                 WHERE perdin_harian.prj_id = prj.id AND perdin_harian.user_id = user.id AND perdin_harian.status_id = status.id
-                AND user.id = ${id}`
-    const query = dbPool.execute(sql)
+                AND user.id = ? AND user.name LIKE ? ORDER BY perdin_harian.id DESC LIMIT ? OFFSET ?`
+    const value = [id, `%${search}%`, limit, offset]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const InsertPerdin = (body, start_date, end_date) => {
     const sql = `INSERT INTO perdin
                  (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,rent_house,meal_allowance,hardship_allowance,pulsa_allowance,car_rent,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,fee_support,tools,others,total_received) VALUES
-                 ('${body.prj_id}',
-                 '${body.user_id}',
-                 '${body.title_name}',
-                  1,
-                 '${body.delegate_approval}',
-                 '${body.official_travel_site}',
-                 '${body.purposes}',
-                 '${body.hotel}',
-                 '${body.rent_house}',
-                 '${body.meal_allowance}',
-                 '${body.hardship_allowance}',
-                 '${body.pulsa_allowance}',
-                 '${body.car_rent}',
-                 '${body.transport}',
-                 '${body.local_transport}',
-                 '${body.airfare}',
-                 '${body.airport_tax}',
-                 '${body.entertainment}',
-                 '${start_date}',
-                 '${end_date}',
-                 '${body.fee_support}',
-                 '${body.tools}',
-                 '${body.others}',
-                 '${body.total_received}')`
-    const query = dbPool.execute(sql)
+                 (?,?,?,1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    const value = [body.prj_id, body.user_id, body.title_name, body.delegate_approval,
+    body.official_travel_site, body.hotel, body.rent_house,
+    body.meal_allowance, body.hardship_allowance, body.pulsa_allowance,
+    body.car_rent, body.transport, body.airfare, body.airport_tax, body.entertainment,
+        start_date, end_date, body.fee_support, body.tools, body.others, body.total_received]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const InsertPerdinDaily = (body, start_date, end_date) => {
     const sql = `INSERT INTO perdin_harian
                  (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,rent_house,meal_allowance,hardship_allowance,pulsa_allowance,car_rent,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,days,fee_support,tools,others,total_received) VALUES
-                 ('${body.prj_id}',
-                 '${body.user_id}',
-                 '${body.title_name}',
-                  1,
-                 '${body.delegate_approval}',
-                 '${body.official_travel_site}',
-                 '${body.purposes}',
-                 '${body.hotel}',
-                 '${body.rent_house}',
-                 '${body.meal_allowance}',
-                 '${body.hardship_allowance}',
-                 '${body.pulsa_allowance}',
-                 '${body.car_rent}',
-                 '${body.transport}',
-                 '${body.local_transport}',
-                 '${body.airfare}',
-                 '${body.airport_tax}',
-                 '${body.entertainment}',
-                 '${start_date}',
-                 '${end_date}',
-                 '${body.days}',
-                 '${body.fee_support}',
-                 '${body.tools}',
-                 '${body.others}',
-                 '${body.total_received}')`
-    const query = dbPool.execute(sql)
+                 (?,?,?,1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+    const value = [body.prj_id, body.user_id, body.title_name, body.delegate_approval, body.official_travel_site,
+    body.purposes, body.hotel, body.rent_house, body.meal_allowance, body.hardship_allowance, body.pulsa_allowance, body.car_rent,
+    body.transport, body.local_transport, body.airfare, body.airport_tax, body.entertainment, start_date, end_date, body.days, body.fee_support, body.tools,
+    body.others, body.total_received]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const InsertManagerApproval = (perdin_id, prj_id, user_id) => {
-    const sql = `INSERT INTO manager_approval (perdin_id,prj_id,user_id,status_id) VALUES ('${perdin_id}','${prj_id}','${user_id}',1)`
-    const query = dbPool.execute(sql)
+    const sql = `INSERT INTO manager_approval (perdin_id,prj_id,user_id,status_id) VALUES (?,?,?,1)`
+    const value = [perdin_id, prj_id, user_id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const InsertDirectorApproval = (perdin_id, prj_id, user_id) => {
-    const sql = `INSERT INTO director_approval (perdin_id,prj_id,user_id,status_id) VALUES ('${perdin_id}','${prj_id}','${user_id}',1)`
-    const query = dbPool.execute(sql)
+    const sql = `INSERT INTO director_approval (perdin_id,prj_id,user_id,status_id) VALUES (?,?,?,1)`
+    const value = [perdin_id, prj_id, user_id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
@@ -197,32 +164,37 @@ const waitingToApproveDirector = () => {
 
 const UpdateApprovalByManager = (id) => {
     const sql = `UPDATE manager_approval SET status_id = 4 WHERE id = ${id}`
-    const query = dbPool.execute(sql)
+    const value = [id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const UpdatePerdinStatusByManager = (id) => {
     const sql = `UPDATE perdin SET status_id = 2 WHERE id = ${id}`
-    const query = dbPool.execute(sql)
+    const value = [id]
+    const query = dbPool.execute(sql, value)
     return query
 
 }
 
 const UpdateApprovalByDirector = (id) => {
-    const sql = `UPDATE director_approval SET status_id = 4 WHERE id = ${id}`
-    const query = dbPool.execute(sql)
+    const sql = `UPDATE director_approval SET status_id = 4 WHERE id = ?`
+    const value = [id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const UpdatePerdinStatusByDirector = (id) => {
-    const sql = `UPDATE perdin SET status_id = 3 WHERE id = ${id}`
-    const query = dbPool.execute(sql)
+    const sql = `UPDATE perdin SET status_id = 3 WHERE id = ?`
+    const value = [id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const CountPerdin = (search) => {
-    const sql = `SELECT COUNT(user.name) as perdin FROM perdin JOIN user WHERE user.name LIKE '%${search}%'`
-    const query = dbPool.execute(sql)
+    const sql = `SELECT COUNT(user.name) as perdin FROM perdin JOIN user WHERE user.name LIKE ?`
+    const value = [`%${search}%`]
+    const query = dbPool.execute(sql, value)
     return query
 }
 

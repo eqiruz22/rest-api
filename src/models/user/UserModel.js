@@ -13,13 +13,14 @@ const SelectAll = (search, offset, limit) => {
 }
 
 const SelectName = () => {
-    const sql = `SELECT id,name FROM user`
+    const sql = `SELECT id AS user_id,name FROM user`
     const query = dbPool.execute(sql)
     return query
 }
 
 const SelectEmail = (email) => {
-    const sql = `SELECT id,email,password,name,role,title_id FROM user WHERE email LIKE '%${email}%'`
+    const sql = `SELECT user.id,user.email,user.password,user.name,role,title.title_name AS title,divisi.divisi_name AS divisi FROM user
+                 JOIN title JOIN divisi WHERE user.title_id = title.id AND user.divisi_id = divisi.id AND email LIKE '%${email}%'`
     const query = dbPool.execute(sql)
     return query
 }
@@ -47,7 +48,7 @@ const Insert = (email, name, password, role, title_id, divisi_id) => {
 }
 
 const SelectById = (id) => {
-    const sql = `SELECT user.id,user.email,user.password,user.name,user.role,user.title_id,divisi.divisi_name
+    const sql = `SELECT user.id,user.email,user.password,user.name,user.role,user.title_id,title.title_name,divisi.divisi_name
                 FROM user JOIN role JOIN title JOIN divisi WHERE
                 user.role = role.id AND user.title_id = title.id AND user.divisi_id = divisi.id AND user.id = ${id}`
     const query = dbPool.execute(sql)

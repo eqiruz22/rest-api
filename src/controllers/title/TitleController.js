@@ -9,7 +9,7 @@ const showTitle = async (req, res) => {
         const [count] = await TitleModel.CountTitle(search)
         const [response] = await TitleModel.SelectTitle(search, offset, limit)
         const totalPage = Math.ceil(count[0]['title'] / limit)
-        res.status(200)
+        return res.status(200)
             .json({
                 message: 'Success show title',
                 value: response,
@@ -19,10 +19,11 @@ const showTitle = async (req, res) => {
                 totalPage: totalPage
             })
     } catch (error) {
-        res.status(500)
+        console.log(error)
+        return res.status(500)
             .json({
                 message: 'Error...',
-                ErrorMessage: error
+                error: error
             })
     }
 }
@@ -36,37 +37,37 @@ const createTitle = async (req, res) => {
     const car = req.body.car
 
     if (!req.body.title) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'title is required'
             })
     }
     if (!req.body.meal) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'meal allowance is required'
             })
     }
     if (!req.body.rent) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'rent house is required'
             })
     }
     if (!req.body.hardship) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'hardship allowance is required'
             })
     }
     if (!req.body.pulsa) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'pulsa allowance is required'
             })
     }
     if (!req.body.car) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'car rent is required'
             })
@@ -78,10 +79,11 @@ const createTitle = async (req, res) => {
                 message: 'Success create new title'
             })
     } catch (error) {
+        console.log(error)
         return res.status(500)
             .json({
                 message: 'Error...',
-                errorMessage: error.message
+                error: error
             })
     }
 }
@@ -91,16 +93,17 @@ const findById = async (req, res) => {
     try {
         const [row] = await TitleModel.SelectById(id)
         if (row.length < 1) {
-            return res.json({
+            return res.status(404).json({
                 message: 'Not found'
             })
         }
-        return res.json({
+        return res.status(200).json({
             message: 'show title',
             value: row
         })
     } catch (error) {
-        res.json({
+        console.log(error)
+        return res.status(500).json({
             message: error
         })
     }
@@ -116,50 +119,52 @@ const UpdateById = async (req, res) => {
     const car = req.body.car
 
     if (!req.body.title) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'title is required'
             })
     }
     if (!req.body.meal) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'meal allowance is required'
             })
     }
     if (!req.body.rent) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'rent house is required'
             })
     }
     if (!req.body.hardship) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'hardship allowance is required'
             })
     }
     if (!req.body.pulsa) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'pulsa allowance is required'
             })
     }
     if (!req.body.car) {
-        return res.status(401)
+        return res.status(400)
             .json({
                 message: 'car rent is required'
             })
     }
     try {
         const data = await TitleModel.Update(title, meal, rent, hardship, pulsa, car, id)
-        res.json({
+        return res.status(200).json({
             message: 'Update Success',
             value: data
         })
     } catch (error) {
-        res.json({
-            message: error
+        console.log(error)
+        return res.status(500).json({
+            message: 'Error',
+            error: error
         })
     }
 }
@@ -168,12 +173,13 @@ const destroyTitle = async (req, res) => {
     let id = req.params.id
     try {
         await TitleModel.Delete(id)
-        res.json({
+        return res.status(200).json({
             message: 'Update success'
         })
     } catch (error) {
-        res.json({
-            message: error
+        console.log(error)
+        return res.status(500).json({
+            message: 'error while'
         })
     }
 }
@@ -186,6 +192,7 @@ const fetchTitleName = async (req, res) => {
             result: row
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error fetching title',
             error: error

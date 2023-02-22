@@ -15,7 +15,7 @@ const getAll = async (req, res) => {
         const [totalRow] = await UserModel.CountRows(search)
         const [rows, fields] = await UserModel.SelectAll(search, offset, limit)
         const totalPage = Math.ceil(totalRow[0]['email'] / limit)
-        return res.json({
+        return res.status(200).json({
             message: "Success show all data",
             result: rows,
             page: page,
@@ -36,8 +36,9 @@ const getAll = async (req, res) => {
 const countAll = async (req, res) => {
     try {
         const [row] = await UserModel.Count()
-        res.json(row)
+        return res.status(200).json(row)
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: "Server error",
             error: error
@@ -56,13 +57,18 @@ const getById = async (req, res) => {
                 value: rows
             })
         }
-        console.log(rows)
+
         return res.status(200).json({
             message: 'Show user by id',
             value: rows
         })
-    } catch (error) {
 
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Error while fetching user by id',
+            error: error
+        })
     }
 }
 
@@ -113,7 +119,6 @@ const createData = async (req, res) => {
     }
     try {
         const data = await UserModel.Insert(email, name, password, role, title_id, divisi)
-        console.log(data)
         return res.status(201).json({
             message: 'Success create data',
             result: data,
@@ -137,12 +142,12 @@ const updateData = async (req, res) => {
     const hash = await bcrypt.hash(password, 10)
     const divisi = req.body.divisi_id
     if (!req.body.email) {
-        return res.json({
+        return res.status(400).json({
             message: 'email cannot be null'
         })
     }
     if (!req.body.role) {
-        return res.json({
+        return res.status(400).json({
             message: 'role cannot be null'
         })
     }
@@ -151,7 +156,6 @@ const updateData = async (req, res) => {
         if (!req.body.password) {
             try {
                 const [rows] = await UserModel.Update(email, name, role, title_id, divisi, id)
-                console.log(rows)
                 return res.status(201).json({
                     message: 'Update data success',
                 })
@@ -165,7 +169,6 @@ const updateData = async (req, res) => {
         } else {
             try {
                 const [data] = await UserModel.UpdateWithPassword(email, name, role, title_id, divisi, hash, id)
-                console.log(data)
                 return res.status(201).json({
                     message: 'Update data with password success'
                 })
@@ -181,7 +184,6 @@ const updateData = async (req, res) => {
         if (!req.body.password) {
             try {
                 const [rows] = await UserModel.UpdateForUser(email, name, id)
-                console.log(rows)
                 return res.status(201).json({
                     message: 'Update data success'
                 })
@@ -194,7 +196,6 @@ const updateData = async (req, res) => {
         } else {
             try {
                 const [data] = await UserModel.UpdateForUserWithPassword(email, name, hash, id)
-                console.log(data)
                 return res.status(201).json({
                     message: 'Update data with password'
                 })
@@ -217,6 +218,7 @@ const deleteData = async (req, res) => {
             message: 'Delete data success',
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while update',
             error: error
@@ -233,6 +235,7 @@ const getManager = async (req, res) => {
                 result: row
             })
     } catch (error) {
+        console.log(error)
         return res.status(500)
             .json({
                 message: 'Error',
@@ -290,6 +293,7 @@ const showUserWithTitle = async (req, res) => {
         const [row] = await UserModel.SelectUserAndTitle()
         return res.status(200).json({ result: row })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ message: error })
     }
 }
@@ -304,6 +308,7 @@ const showUserWithTitleById = async (req, res) => {
         }
         return res.status(200).json({ ...data[0] })
     } catch (error) {
+        console.log(error)
         return res.status(500)
             .json({
                 message: error
@@ -319,6 +324,7 @@ const getName = async (req, res) => {
             result: row
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while fetching name',
             error: error

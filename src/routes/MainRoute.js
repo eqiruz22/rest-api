@@ -3,6 +3,7 @@ import DivisiController from '../controllers/divisi/DivisiController.js';
 import PerdinController from '../controllers/perdin/PerdinController.js';
 import PrjController from '../controllers/prj/PrjController.js';
 import RoleController from '../controllers/role/RoleController.js';
+import Test from '../controllers/Test.js';
 import TitleController from '../controllers/title/TitleController.js';
 import UserController from '../controllers/user/UserController.js';
 import ZoneController from '../controllers/zone/ZoneController.js';
@@ -54,5 +55,7 @@ router.delete('/divisi/:id', DivisiController.destroyDivisi)
 
 router.get('/zone', ZoneController.fetchZoneWithTitle)
 router.post('/zone', ZoneController.createZone)
+
+router.post('/test', Test.test)
 
 export default router;

@@ -1,5 +1,6 @@
 import PerdinModel from "../../models/perdin/PerdinModel.js";
 import nodemailer from 'nodemailer'
+import UserModel from "../../models/user/UserModel.js";
 
 
 const showPerdin = async (req, res) => {
@@ -13,7 +14,7 @@ const showPerdin = async (req, res) => {
         const totalPage = Math.ceil(totalRow[0]['perdin'] / limit)
         res.status(200)
             .json({
-                message: 'Show All data',
+                message: 'Show All data perdin',
                 result: data,
                 page: page,
                 limit: limit,
@@ -21,9 +22,10 @@ const showPerdin = async (req, res) => {
                 totalPage: totalPage
             })
     } catch (error) {
+        console.log(error)
         res.status(500)
             .json({
-                message: 'Error',
+                message: 'Error while fetching perdin',
                 result: error
             })
     }
@@ -31,22 +33,38 @@ const showPerdin = async (req, res) => {
 
 const showPerdinDaily = async (req, res) => {
     try {
-        const [row] = await PerdinModel.SelectPerdinDaily()
-        if (row.length < 1) {
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [totalRow] = await PerdinModel.CountPerdin(search)
+        const [data] = await PerdinModel.CountPerdin(search, offset, limit)
+        const totalPage = Math.ceil(totalRow[0]['perdin'] / limit)
+        if (data.length < 1) {
             return res.status(201)
                 .json({
-                    message: 'no data for show',
-                    result: row
+                    message: 'no data perdin for show',
+                    result: data,
+                    page: page,
+                    limit: limit,
+                    row: totalRow[0]['perdin'],
+                    totalPage: totalPage
                 })
         }
         return res.status(200)
             .json({
-                message: 'success get data',
-                result: row
+                message: 'success get data perdin',
+                result: data,
+                page: page,
+                limit: limit,
+                row: totalRow[0]['perdin'],
+                totalPage: totalPage
             })
     } catch (error) {
+        console.log(error)
         return res.status(500)
             .json({
+                message: 'Error while fetching perdin',
                 error: error
             })
     }
@@ -55,22 +73,39 @@ const showPerdinDaily = async (req, res) => {
 const showPerdinDailyById = async (req, res) => {
     let id = req.params.id
     try {
-        const [row] = await PerdinModel.SelectPerdinDailyId(id)
-        if (row.length < 1) {
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [totalRow] = await PerdinModel.CountPerdin(search)
+        const [data] = await PerdinModel.SelectPerdinDailyId(id, search, offset, limit)
+        const totalPage = Math.ceil(totalRow[0]['perdin'] / limit)
+        if (data.length < 1) {
             return res.status(201)
                 .json({
-                    message: 'no data for show',
-                    result: row
+                    message: 'no data perdin for show by id',
+                    result: data,
+                    page: page,
+                    limit: limit,
+                    row: totalRow[0]['perdin'],
+                    totalPage: totalPage
                 })
         }
-        console.log(row)
         return res.status(200)
             .json({
-                message: 'show data',
-                result: row
+                message: 'show data perdin by id',
+                result: data,
+                page: page,
+                limit: limit,
+                row: totalRow[0]['perdin'],
+                totalPage: totalPage
             })
     } catch (error) {
         console.log(error)
+        return res.status(500).json({
+            message: 'Error while fetching perdin by id',
+            error: error
+        })
     }
 }
 
@@ -146,6 +181,7 @@ const createPerdin = async (req, res) => {
                 message: 'Success create data',
             })
     } catch (error) {
+        console.log(error)
         return res.status(500)
             .json({
                 message: 'Error',
@@ -156,6 +192,7 @@ const createPerdin = async (req, res) => {
 
 const createPerdinDaily = async (req, res) => {
     const { body } = req
+    const id = req.body.id
     const start = req.body.start_date
     const end = req.body.end_date
     const startDate = (start) => {
@@ -182,26 +219,28 @@ const createPerdinDaily = async (req, res) => {
         return [year, month, day].join('-')
     }
 
-    if (!req.body) {
-        return res.status(400).json({
-            message: 'all field is required'
-        })
-    }
+    // if (!req.body) {
+    //     return res.status(400).json({
+    //         message: 'all field is required'
+    //     })
+    // }
 
     const resultStart = startDate(start)
     const resultEnd = endDate(end)
-    try {
-        const data = await PerdinModel.InsertPerdinDaily(body, resultStart, resultEnd)
-        res.status(201).json({
-            message: 'success create data'
-        })
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            message: 'Error',
-            error: error
-        })
-    }
+    const data = await UserModel.SelectById(id)
+
+    // try {
+    //     const data = await PerdinModel.InsertPerdinDaily(body, resultStart, resultEnd)
+    //     res.status(201).json({
+    //         message: 'success create data'
+    //     })
+    // } catch (error) {
+    //     console.log(error)
+    //     res.status(500).json({
+    //         message: 'Error',
+    //         error: error
+    //     })
+    // }
 }
 
 const showWaitingToManager = async (req, res) => {
@@ -213,6 +252,7 @@ const showWaitingToManager = async (req, res) => {
                 result: row
             })
     } catch (error) {
+        console.log(error)
         res.status(500)
             .json({
                 message: 'Error',
@@ -271,6 +311,7 @@ const updateApprovedManager = async (req, res) => {
                 }
             })
     } catch (error) {
+        console.log(error)
         res.status(500)
             .json({
                 message: 'Error',
@@ -288,6 +329,7 @@ const showWaitingToDirector = async (req, res) => {
                 result: row
             })
     } catch (error) {
+        console.log(error)
         res.status(500)
             .json({
                 message: 'Error',
@@ -306,6 +348,7 @@ const updateApprovedDirector = async (req, res) => {
             message: 'Updated'
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: error
         })

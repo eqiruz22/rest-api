@@ -14,27 +14,27 @@ const createZone = async (req, res) => {
             message: 'Zone Name cannot be null'
         })
     }
-    if (!req.body) {
+    if (!req.body.title_id) {
         return res.status(400).json({
             message: 'Title id cannot be null'
         })
     }
-    if (!req.body) {
+    if (!req.body.transport_non_airplane) {
         return res.status(400).json({
             message: 'Transport Non Airplane cannot be null'
         })
     }
-    if (!req.body) {
+    if (!req.body.transport_airplane) {
         return res.status(400).json({
             message: 'Transport Airplane cannot be null'
         })
     }
-    if (!req.body) {
+    if (!req.body.hotel) {
         return res.status(400).json({
             message: 'Hotel cannot be null'
         })
     }
-    if (!req.body) {
+    if (!req.body.meal_allowance) {
         return res.status(400).json({
             message: 'Meal Allowance cannot be null'
         })
@@ -67,6 +67,7 @@ const fetchZoneWithTitle = async (req, res) => {
             result: row
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while fetching zone with title',
             error: error

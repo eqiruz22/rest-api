@@ -9,7 +9,6 @@ const fetchPrj = async (req, res) => {
         const [count] = await PrjModel.CountPrj(search)
         const [row] = await PrjModel.SelectPrj(search, offset, limit)
         const totalPage = Math.ceil(count[0]['prj'] / limit)
-        console.log(row)
         return res.status(201)
             .json({
                 message: 'Show prj',
@@ -50,6 +49,7 @@ const createPrj = async (req, res) => {
             message: 'Succes create new PRJ'
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while created PRJ',
             Error: error
@@ -63,6 +63,7 @@ const fetchById = async (req, res) => {
         const [row] = await PrjModel.SelectById(id)
         return res.status(200).json({ message: 'show by id', result: row })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ message: 'error while fetching data', error: error })
     }
 }
@@ -83,6 +84,7 @@ const updatePrj = async (req, res) => {
         const data = await PrjModel.UpdatePrj(prj_name, status, id)
         return res.status(200).json({ message: 'Update success' })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while update',
             error: error
@@ -96,6 +98,7 @@ const destroyPrj = async (req, res) => {
         const data = await PrjModel.DeletePrj(id)
         return res.status(200).json({ message: 'Delete success' })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ message: 'Error while delete data' })
     }
 }

@@ -3,7 +3,7 @@ import Role from "../../models/role/RoleModel.js";
 const showAll = async (req, res) => {
     try {
         const [rows, fields] = await Role.Select()
-        if (rows.length === 0) {
+        if (rows.length < 1) {
             return res.status(200).json({
                 message: 'No data to show'
             })
@@ -13,6 +13,7 @@ const showAll = async (req, res) => {
             value: rows
         })
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             message: 'Error while fetching data',
             Error: error

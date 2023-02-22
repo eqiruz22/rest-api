@@ -2,8 +2,9 @@ import dbPool from '../../db/Config.js'
 
 const InsertZone = (zone, title, transport, airplane, hotel, meal, allowance) => {
     const sql = `INSERT INTO zone (zone_name,title_id,transport_non_airplane,transport_airplane,hotel,meal_allowance,allowance)
-                 VALUES ('${zone}',${title},'${transport}','${airplane}','${hotel}','${meal}','${allowance}')`
-    const query = dbPool.execute(sql)
+                 VALUES (?,?,?,?,?,?,?)`
+    const value = [zone, title, transport, airplane, hotel, meal, allowance]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
