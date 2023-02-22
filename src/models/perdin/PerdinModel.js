@@ -91,13 +91,13 @@ const SelectPerdinDailyId = (id, search, offset, limit) => {
 
 const InsertPerdin = (body, start_date, end_date) => {
     const sql = `INSERT INTO perdin
-                 (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,rent_house,meal_allowance,hardship_allowance,pulsa_allowance,car_rent,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,fee_support,tools,others,total_received) VALUES
-                 (?,?,?,1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
+                 (prj_id,user_id,title_name,status_id,delegate_approval,official_travel_site,purposes,hotel,rent_house,meal_allowance,hardship_allowance,pulsa_allowance,car_rent,transport,local_transport,airfare,airport_tax,entertainment,start_date,end_date,days,fee_support,tools,others,total_received) VALUES
+                 (?,?,?,1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
     const value = [body.prj_id, body.user_id, body.title_name, body.delegate_approval,
     body.official_travel_site, body.hotel, body.rent_house,
     body.meal_allowance, body.hardship_allowance, body.pulsa_allowance,
     body.car_rent, body.transport, body.airfare, body.airport_tax, body.entertainment,
-        start_date, end_date, body.fee_support, body.tools, body.others, body.total_received]
+        start_date, end_date, body.days, body.fee_support, body.tools, body.others, body.total_received]
     const query = dbPool.execute(sql, value)
     return query
 }
