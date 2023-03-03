@@ -46,9 +46,9 @@ const DeleteDivisi = (id) => {
     return query
 }
 
-const SelectDivisiName = (search) => {
+const SelectDivisiName = (divisi_name) => {
     const sql = `SELECT id,divisi_name,divisi_manager,divisi_head FROM divisi WHERE divisi_name = ?`
-    const query = dbPool.execute(sql, [`%${search}%`])
+    const query = dbPool.execute(sql, [divisi_name])
     return query
 }
 

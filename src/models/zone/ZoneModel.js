@@ -17,7 +17,28 @@ const SelectZoneWithTitle = () => {
     return query
 }
 
+const SelectZoneByTitle = (name) => {
+    const sql = `SELECT
+    zone.id,zone.zone_name,zone.transport_non_airplane,
+    zone.transport_airplane,zone.hotel,zone.meal_allowance,zone.allowance,
+    title.id AS title_id,title.title_name FROM zone JOIN title
+    WHERE zone.title_id = title.id AND title.title_name = ?`
+    const query = dbPool.execute(sql, [name])
+    return query
+}
+
+const SelectZoneById = (id) => {
+    const sql = `SELECT
+                zone.id,zone.zone_name,zone.transport_non_airplane,zone.transport_airplane,zone.hotel,zone.meal_allowance,zone.allowance,
+                title.title_name
+                FROM zone JOIN title WHERE zone.title_id = title.id AND zone.id = ?`
+    const query = dbPool.execute(sql, [id])
+    return query
+}
+
 export default {
     InsertZone,
-    SelectZoneWithTitle
+    SelectZoneWithTitle,
+    SelectZoneByTitle,
+    SelectZoneById
 }

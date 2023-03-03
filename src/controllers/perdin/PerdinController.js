@@ -1,7 +1,6 @@
 import PerdinModel from "../../models/perdin/PerdinModel.js";
-import nodemailer from 'nodemailer'
 import UserModel from "../../models/user/UserModel.js";
-
+import DivisiModel from "../../models/divisi/DivisiModel.js";
 
 const showPerdin = async (req, res) => {
     try {
@@ -37,8 +36,8 @@ const showPerdinDaily = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10
         const search = req.query.query || ''
         const offset = limit * page
-        const [totalRow] = await PerdinModel.CountPerdin(search)
-        const [data] = await PerdinModel.CountPerdin(search, offset, limit)
+        const [totalRow] = await PerdinModel.CountPerdinDaily(search)
+        const [data] = await PerdinModel.SelectPerdinDaily(search, offset, limit)
         const totalPage = Math.ceil(totalRow[0]['perdin'] / limit)
         if (data.length < 1) {
             return res.status(201)
@@ -77,7 +76,7 @@ const showPerdinDailyById = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10
         const search = req.query.query || ''
         const offset = limit * page
-        const [totalRow] = await PerdinModel.CountPerdin(search)
+        const [totalRow] = await PerdinModel.CountPerdinDailyById(id, search)
         const [data] = await PerdinModel.SelectPerdinDailyId(id, search, offset, limit)
         const totalPage = Math.ceil(totalRow[0]['perdin'] / limit)
         if (data.length < 1) {
@@ -138,47 +137,17 @@ const createPerdin = async (req, res) => {
     const formatStartDate = formatDateStart(start)
     const formatEndDate = formatDateEnd(end)
 
-    let transporter = nodemailer.createTransport({
-        host: 'access.mkncorp.com',
-        port: 587,
-        secure: false,
-        auth: {
-            user: 'no-reply@mkncorp.com',
-            pass: 'user.100'
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    })
-
     if (!req.body) {
         return res.json({
             message: 'All field is required'
         })
     }
 
-    const send = async () => {
-        let mailOptions = {
-            from: 'no-reply@mkncorp.com',
-            to: `${req.body.delegate_approval}`,
-            subject: 'Test Email notification',
-            text: 'Sukses kirim email'
-        }
-        try {
-            let info = await transporter.sendMail(mailOptions)
-            console.log(info)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
     try {
         const data = await PerdinModel.InsertPerdin(body, formatStartDate, formatEndDate)
-        //const data1 = await PerdinModel.InsertManagerApproval(data[0]['insertId'], req.body.prj_id, req.body.user_id, req.body.status_id)
-        //send()
         return res.status(201)
             .json({
-                message: 'Success create data',
+                message: 'Success create perdin',
             })
     } catch (error) {
         console.log(error)
@@ -192,7 +161,6 @@ const createPerdin = async (req, res) => {
 
 const createPerdinDaily = async (req, res) => {
     const { body } = req
-    const id = req.body.id
     const start = req.body.start_date
     const end = req.body.end_date
     const startDate = (start) => {
@@ -219,33 +187,56 @@ const createPerdinDaily = async (req, res) => {
         return [year, month, day].join('-')
     }
 
-    // if (!req.body) {
-    //     return res.status(400).json({
-    //         message: 'all field is required'
-    //     })
-    // }
+    if (!req.body) {
+        return res.status(400).json({
+            message: 'all field is required'
+        })
+    }
 
     const resultStart = startDate(start)
     const resultEnd = endDate(end)
-    const data = await UserModel.SelectById(id)
-
-    // try {
-    //     const data = await PerdinModel.InsertPerdinDaily(body, resultStart, resultEnd)
-    //     res.status(201).json({
-    //         message: 'success create data'
-    //     })
-    // } catch (error) {
-    //     console.log(error)
-    //     res.status(500).json({
-    //         message: 'Error',
-    //         error: error
-    //     })
-    // }
+    try {
+        const dailyPerdin = await PerdinModel.InsertPerdinDaily(body, resultStart, resultEnd)
+        const [userId] = await UserModel.SelectById(req.body.user_id)
+        const insertId = dailyPerdin[0][0][0]['LAST_INSERT_ID()']
+        const name = userId[0][0]['divisi_name']
+        const [divisi] = await DivisiModel.SelectDivisiName(name)
+        const [forApprovalManager] = await UserModel.SelectById(divisi[0]['divisi_manager'])
+        const [forApprovaldivHead] = await UserModel.SelectById(divisi[0]['divisi_head'])
+        console.log(insertId)
+        if (userId[0][0]['title_name'] === 'Manager' || userId[0][0]['title_name'] === 'Sr Manager') {
+            if (dailyPerdin[0][1].affectedRows === 1) {
+                const insertTodivisiHead = await PerdinModel.InsertDivisiApproval(insertId, req.body.prj_id, forApprovaldivHead[0][0]['id'])
+                return res.status(201).json({
+                    message: 'perdin berhasil dibuat & approval dikirim ke divisi head',
+                    userId: userId[0][0],
+                    divisi_head: forApprovaldivHead[0][0],
+                    insertTodivisiHead: insertTodivisiHead
+                })
+            }
+        } else {
+            if (dailyPerdin[0][1].affectedRows === 1) {
+                const insertToManager = await PerdinModel.InsertDivisiApproval(insertId, req.body.prj_id, forApprovalManager[0][0]['id'])
+                return res.status(201).json({
+                    message: 'perdin berhasil dibuat & approval dikirim ke manager divisi',
+                    userId: userId[0][0],
+                    manager_data: forApprovalManager[0][0],
+                    insertToManager: insertToManager
+                })
+            }
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Error',
+            error: error
+        })
+    }
 }
 
-const showWaitingToManager = async (req, res) => {
+const showWaitingToDivisi = async (req, res) => {
     try {
-        const [row] = await PerdinModel.waitingToApproveManager()
+        const [row] = await PerdinModel.waitingToApproveDivisi()
         res.status(200)
             .json({
                 message: 'Succes to show',
@@ -261,45 +252,17 @@ const showWaitingToManager = async (req, res) => {
     }
 }
 
-const updateApprovedManager = async (req, res) => {
+const updateApprovedDivisi = async (req, res) => {
     const id = req.body.id
     const perdin_id = req.body.perdin_id
     const prj_id = req.body.prj_id
     const user_id = req.body.user_id
     const status_id = req.body.status_id
 
-    let transporter = nodemailer.createTransport({
-        host: 'access.mkncorp.com',
-        port: 587,
-        secure: false,
-        auth: {
-            user: 'no-reply@mkncorp.com',
-            pass: 'user.100'
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    })
-
-    const send = async () => {
-        let mailOptions = {
-            from: 'no-reply@mkncorp.com',
-            to: `ahmadrifa11620@gmail.com`,
-            subject: 'Test Email notification',
-            text: 'Sukses kirim email'
-        }
-        try {
-            let info = await transporter.sendMail(mailOptions)
-            console.log(info)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
     try {
-        const data1 = await PerdinModel.UpdateApprovalByManager(id)
-        const data2 = await PerdinModel.UpdatePerdinStatusByManager(perdin_id)
-        const data3 = await PerdinModel.InsertDirectorApproval(perdin_id, prj_id, user_id)
+        const data1 = await PerdinModel.UpdateApprovalByDivisi(id)
+        const data2 = await PerdinModel.UpdatePerdinStatusByDivisi(perdin_id)
+        const data3 = await PerdinModel.InsertHcApproval(perdin_id, prj_id, user_id)
         send()
         res.status(200)
             .json({
@@ -320,9 +283,9 @@ const updateApprovedManager = async (req, res) => {
     }
 }
 
-const showWaitingToDirector = async (req, res) => {
+const showWaitingToHc = async (req, res) => {
     try {
-        const [row] = await PerdinModel.waitingToApproveDirector()
+        const [row] = await PerdinModel.waitingToApproveHc()
         res.status(200)
             .json({
                 message: 'Show waiting',
@@ -338,12 +301,12 @@ const showWaitingToDirector = async (req, res) => {
     }
 }
 
-const updateApprovedDirector = async (req, res) => {
+const updateApprovedHc = async (req, res) => {
     const perdin_id = req.body.perdin_id
     const id = req.body.id
     try {
-        const data1 = await PerdinModel.UpdateApprovalByDirector(id)
-        const data2 = await PerdinModel.UpdatePerdinStatusByDirector(perdin_id)
+        const data1 = await PerdinModel.UpdateApprovalByHc(id)
+        const data2 = await PerdinModel.UpdatePerdinStatusByHc(perdin_id)
         return res.status(201).json({
             message: 'Updated'
         })
@@ -361,8 +324,8 @@ export default {
     showPerdinDailyById,
     createPerdin,
     createPerdinDaily,
-    showWaitingToManager,
-    showWaitingToDirector,
-    updateApprovedManager,
-    updateApprovedDirector
+    showWaitingToDivisi,
+    showWaitingToHc,
+    updateApprovedDivisi,
+    updateApprovedHc
 }

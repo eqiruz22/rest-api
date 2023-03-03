@@ -3,7 +3,6 @@ import DivisiController from '../controllers/divisi/DivisiController.js';
 import PerdinController from '../controllers/perdin/PerdinController.js';
 import PrjController from '../controllers/prj/PrjController.js';
 import RoleController from '../controllers/role/RoleController.js';
-import Test from '../controllers/Test.js';
 import TitleController from '../controllers/title/TitleController.js';
 import UserController from '../controllers/user/UserController.js';
 import ZoneController from '../controllers/zone/ZoneController.js';
@@ -11,7 +10,8 @@ import requireAuth from '../middleware/requireAuth.js';
 const router = express.Router()
 
 router.post('/login', UserController.Login)
-router.get('/show', requireAuth, UserController.getAll)
+router.use(requireAuth)
+router.get('/show', UserController.getAll)
 router.get('/show/:id', UserController.getById)
 router.get('/count', UserController.countAll)
 router.get('/show-manager', UserController.getManager)
@@ -39,12 +39,12 @@ router.delete('/title/delete/:id', TitleController.destroyTitle)
 router.get('/perdin-show', PerdinController.showPerdin)
 router.get('/perdin-show-daily', PerdinController.showPerdinDaily)
 router.get('/perdin-show-daily/:id', PerdinController.showPerdinDailyById)
-router.get('/waiting-approve-manager', PerdinController.showWaitingToManager)
-router.get('/waiting-approve-director', PerdinController.showWaitingToDirector)
+router.get('/waiting-approve-divisi', PerdinController.showWaitingToDivisi)
+router.get('/waiting-approve-hc', PerdinController.showWaitingToHc)
 router.post('/perdin-create', PerdinController.createPerdin)
 router.post('/perdin-daily', PerdinController.createPerdinDaily)
-router.post('/approved-manager', PerdinController.updateApprovedManager)
-router.post('/approved-director', PerdinController.updateApprovedDirector)
+router.post('/approved-divisi', PerdinController.updateApprovedDivisi)
+router.post('/approved-hc', PerdinController.updateApprovedHc)
 
 router.get('/divisi', DivisiController.fetchDivisi)
 router.get('/divisi-head', DivisiController.fetchDivisiWithHead)
@@ -54,8 +54,8 @@ router.patch('/divisi/:id', DivisiController.updateDivisi)
 router.delete('/divisi/:id', DivisiController.destroyDivisi)
 
 router.get('/zone', ZoneController.fetchZoneWithTitle)
+router.get('/zone/:name', ZoneController.fetchZoneByName)
+router.get('/zone-by/:id', ZoneController.fetchZoneById)
 router.post('/zone', ZoneController.createZone)
-
-router.post('/test', Test.test)
 
 export default router;

@@ -75,7 +75,46 @@ const fetchZoneWithTitle = async (req, res) => {
     }
 }
 
+const fetchZoneByName = async (req, res) => {
+    const name = req.params.name
+    try {
+        const [data] = await ZoneModel.SelectZoneByTitle(name)
+        return res.status(200).json({
+            message: 'Success fetching zone by title name',
+            result: data
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error while fetching zone by title name'
+        })
+    }
+}
+
+const fetchZoneById = async (req, res) => {
+    let id = req.params.id
+    try {
+        const [data] = await ZoneModel.SelectZoneById(id)
+        if (data.length < 1) {
+            return res.status(404).json({
+                message: 'ID not found'
+            })
+        }
+        return res.status(200).json({
+            message: 'Show title by id',
+            result: data
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Error while fetching zone by id',
+            error: error
+        })
+    }
+}
+
 export default {
     createZone,
-    fetchZoneWithTitle
+    fetchZoneWithTitle,
+    fetchZoneByName,
+    fetchZoneById
 }

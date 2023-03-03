@@ -13,16 +13,17 @@ const getAll = async (req, res) => {
         const search = req.query.query || ''
         const offset = limit * page
         const [totalRow] = await UserModel.CountRows(search)
-        const [rows, fields] = await UserModel.SelectAll(search, offset, limit)
+        const [rows] = await UserModel.SelectAll(search, offset, limit)
         const totalPage = Math.ceil(totalRow[0]['email'] / limit)
         return res.status(200).json({
             message: "Success show all data",
-            result: rows,
+            result: rows[0],
             page: page,
             limit: limit,
             row: totalRow[0]['email'],
             totalPage: totalPage
         })
+
     } catch (error) {
         console.log(error)
         return res.status(500).json({
@@ -57,10 +58,9 @@ const getById = async (req, res) => {
                 value: rows
             })
         }
-
         return res.status(200).json({
             message: 'Show user by id',
-            value: rows
+            value: rows[0]
         })
 
     } catch (error) {

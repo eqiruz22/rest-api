@@ -1,14 +1,9 @@
 import dbPool from '../../db/Config.js'
 
 const SelectAll = (search, offset, limit) => {
-    const sql = `SELECT user.id,user.email,user.name,divisi.divisi_name,role.role_name,title.title_name,title.rent_house,
-                 title.meal_allowance,
-                 title.hardship_allowance,
-                 title.pulsa_allowance,
-                 title.car_rent
-                 FROM user JOIN role JOIN title JOIN divisi
-                 WHERE user.divisi_id = divisi.id AND user.role = role.id AND user.title_id = title.id AND email LIKE '%${search}%' ORDER BY id DESC LIMIT ${offset},${limit}`
-    const query = dbPool.execute(sql)
+    const sql = 'CALL showUser(?,?,?)'
+    const value = [search, limit, offset]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
@@ -26,8 +21,8 @@ const SelectEmail = (email) => {
 }
 
 const CountRows = (search) => {
-    const sql = `SELECT COUNT(email) AS email FROM user WHERE email LIKE '%${search}%'`
-    const query = dbPool.execute(sql)
+    const sql = `SELECT COUNT(email) AS email FROM user WHERE email LIKE ?`
+    const query = dbPool.execute(sql, [`%${search}%`])
     return query
 }
 
@@ -42,52 +37,55 @@ const SelectManager = () => {
 const Insert = (email, name, password, role, title_id, divisi_id) => {
     const sql = `INSERT INTO user 
                 (email,name,password,role,title_id,divisi_id) VALUES
-                ('${email}','${name}','${password}','${role}','${title_id}','${divisi_id}');`
-    const query = dbPool.execute(sql)
+                (?,?,?,?,?,?);`
+    const value = [email, name, password, role, title_id, divisi_id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const SelectById = (id) => {
-    const sql = `SELECT user.id,user.email,user.password,user.name,user.role,user.title_id,title.title_name,divisi.divisi_name
-                FROM user JOIN role JOIN title JOIN divisi WHERE
-                user.role = role.id AND user.title_id = title.id AND user.divisi_id = divisi.id AND user.id = ${id}`
-    const query = dbPool.execute(sql)
+    const sql = 'CALL userById(?)'
+    const query = dbPool.execute(sql, [id])
     return query
 }
 
 const Update = (email, name, role, title_id, divisi_id, id) => {
-    const sql = `UPDATE user SET email='${email}',name='${name}',role='${role}',title_id='${title_id}', divisi_id='${divisi_id}' WHERE id=${id}`
-    const query = dbPool.execute(sql)
+    const sql = `UPDATE user SET email=?,name=?,role=?,title_id=?, divisi_id=? WHERE id=?`
+    const value = [email, name, role, title_id, divisi_id, id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const UpdateWithPassword = (email, name, role, title_id, divisi_id, password, id) => {
-    const sql = `UPDATE user SET email='${email}',name='${name}',role='${role}',title_id='${title_id}', divisi_id='${divisi_id},password='${password}' WHERE id=${id}`
-    const query = dbPool.execute(sql)
+    const sql = `UPDATE user SET email=?,name=?,role=?,title_id=?, divisi_id=?,password=? WHERE id=?`
+    const value = [email, name, role, title_id, divisi_id, password, id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const UpdateForUser = (email, name, id) => {
-    const sql = `UPDATE user SET email='${email}',name='${name}' WHERE id=${id}`
-    const query = dbPool.execute(sql)
+    const sql = `UPDATE user SET email=?,name=? WHERE id=?`
+    const value = [email, name, id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const UpdateForUserWithPassword = (email, name, password, id) => {
-    const sql = `UPDATE user SET email='${email}',name='${name}',password='${password}' WHERE id=${id}`
-    const query = dbPool.execute(sql)
+    const sql = `UPDATE user SET email=?,name=?,password=? WHERE id=?`
+    const value = [email, name, password, id]
+    const query = dbPool.execute(sql, value)
     return query
 }
 
 const Delete = (id) => {
-    const sql = `DELETE FROM user WHERE id=${id}`
-    const query = dbPool.execute(sql)
+    const sql = `DELETE FROM user WHERE id=?`
+    const query = dbPool.execute(sql, [id])
     return query
 }
 
 const SelectPassword = (password) => {
-    const sql = `SELECT * FROM user WHERE password = '${password}'`
-    const query = dbPool.execute(sql)
+    const sql = `SELECT * FROM user WHERE password = ?`
+    const query = dbPool.execute(sql, [password])
     return query
 }
 
@@ -114,8 +112,8 @@ const SelectUserTitleById = (id) => {
     title.meal_allowance,
     title.hardship_allowance,
     title.pulsa_allowance,
-    title.car_rent FROM user JOIN title WHERE user.title_id = title.id AND user.id = ${id}`
-    const query = dbPool.execute(sql)
+    title.car_rent FROM user JOIN title WHERE user.title_id = title.id AND user.id = ?`
+    const query = dbPool.execute(sql, [id])
     return query
 }
 export default {

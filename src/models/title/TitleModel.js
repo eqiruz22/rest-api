@@ -32,7 +32,7 @@ const Update = (title, rent, meal, hardship, pulsa, car, id) => {
                 hardship_allowance=?,
                 pulsa_allowance=?,
                 car_rent=?' WHERE id =?`
-    const value = [title, rent, meal, hardship, pulsa, id]
+    const value = [title, rent, meal, hardship, pulsa, car, id]
     const query = dbPool.execute(sql, value)
     return query
 }

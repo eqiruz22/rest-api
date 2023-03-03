@@ -4,7 +4,8 @@ const dbPool = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'user.100',
-    database: 'rest-api'
+    database: 'rest-api',
+    multipleStatements: true
 })
 
 if (dbPool) console.log('Connected to database')
