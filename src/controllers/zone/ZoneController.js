@@ -61,10 +61,20 @@ const createZone = async (req, res) => {
 
 const fetchZoneWithTitle = async (req, res) => {
     try {
-        const [row] = await ZoneModel.SelectZoneWithTitle()
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [count] = await ZoneModel.CountZone(search)
+        const [data] = await ZoneModel.SelectZoneWithTitle(search, offset, limit)
+        const totalPage = Math.ceil(count[0]['zone'] / limit)
         return res.status(200).json({
             message: 'Show zone with title',
-            result: row
+            result: data,
+            page: page,
+            limit: limit,
+            row: count[0]['zone'],
+            totalPage: totalPage
         })
     } catch (error) {
         console.log(error)
@@ -112,9 +122,56 @@ const fetchZoneById = async (req, res) => {
     }
 }
 
+const UpdateZone = async (req, res) => {
+    const name = req.body.zone_name
+    const transport = req.body.transport_airplane
+    const airplane = req.body.transport_non_airplane
+    const title = req.body.title_id
+    const hotel = req.body.hotel
+    const meal = req.body.meal_allowance
+    const allowance = req.body.allowance
+    let id = req.params.id
+    if (!req.body) {
+        return res.status(400).json({
+            message: 'All field is required'
+        })
+    }
+
+    try {
+        const data = await ZoneModel.Update(name, title, airplane, transport, hotel, meal, allowance, id)
+        return res.status(200).json({
+            message: 'Update zone success'
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Error while update zone',
+            error: error
+        })
+    }
+}
+
+const DeleteZone = async (req, res) => {
+    let id = req.params.id
+    try {
+        const data = await ZoneModel.Destroy(id)
+        return res.status(200).json({
+            message: `success delete zone with id ${id}`
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Error while delete zone',
+            error: error
+        })
+    }
+}
+
 export default {
     createZone,
     fetchZoneWithTitle,
     fetchZoneByName,
-    fetchZoneById
+    fetchZoneById,
+    UpdateZone,
+    DeleteZone
 }

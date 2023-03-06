@@ -57,5 +57,7 @@ router.get('/zone', ZoneController.fetchZoneWithTitle)
 router.get('/zone/:name', ZoneController.fetchZoneByName)
 router.get('/zone-by/:id', ZoneController.fetchZoneById)
 router.post('/zone', ZoneController.createZone)
+router.patch('/zone/:id', ZoneController.UpdateZone)
+router.delete('/zone/:id', ZoneController.DeleteZone)
 
 export default router;
