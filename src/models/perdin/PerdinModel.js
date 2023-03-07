@@ -58,35 +58,13 @@ const InsertHcApproval = (perdin_id, prj_id, user_id) => {
 }
 
 const waitingToApproveDivisi = () => {
-    const sql = `SELECT divisi_approval.id,
-                  user.name,
-                  prj.prj_name,
-                  perdin.official_travel_site,
-                  perdin.total_received,
-                  status.proses,
-                  divisi_approval.perdin_id,
-                  divisi_approval.prj_id,
-                  divisi_approval.user_id,
-                  divisi_approval.status_id FROM divisi_approval JOIN prj JOIN perdin JOIN user JOIN status 
-                  WHERE divisi_approval.perdin_id = perdin.id 
-                  AND divisi_approval.prj_id = prj.id AND divisi_approval.user_id = user.id AND divisi_approval.status_id = status.id`
+    const sql = `CALL waitingToApproveDivisi()`
     const query = dbPool.execute(sql)
     return query
 }
 
 const waitingToApproveHc = () => {
-    const sql = `SELECT hc_approval.id,
-                user.name,
-                prj.prj_name,
-                perdin.official_travel_site,
-                perdin.total_received,
-                status.proses,
-                hc_approval.perdin_id,
-                hc_approval.prj_id,
-                hc_approval.user_id,
-                hc_approval.status_id FROM hc_approval JOIN prj JOIN perdin JOIN user JOIN status 
-                WHERE hc_approval.perdin_id = perdin.id 
-                AND hc_approval.prj_id = prj.id AND hc_approval.user_id = user.id AND hc_approval.status_id = status.id`
+    const sql = `CALL waitingToApproveHc()`
     const query = dbPool.execute(sql)
     return query
 }
