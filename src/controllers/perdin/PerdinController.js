@@ -83,7 +83,7 @@ const showPerdinDailyById = async (req, res) => {
             return res.status(201)
                 .json({
                     message: 'no data perdin for show by id',
-                    result: data,
+                    result: data[0],
                     page: page,
                     limit: limit,
                     row: totalRow[0]['perdin'],
@@ -93,7 +93,7 @@ const showPerdinDailyById = async (req, res) => {
         return res.status(200)
             .json({
                 message: 'show data perdin by id',
-                result: data,
+                result: data[0],
                 page: page,
                 limit: limit,
                 row: totalRow[0]['perdin'],
@@ -237,14 +237,14 @@ const createPerdinDaily = async (req, res) => {
 const showWaitingToDivisi = async (req, res) => {
     try {
         const [row] = await PerdinModel.waitingToApproveDivisi()
-        res.status(200)
+        return res.status(200)
             .json({
                 message: 'Succes to show',
-                result: row
+                result: row[0]
             })
     } catch (error) {
         console.log(error)
-        res.status(500)
+        return res.status(500)
             .json({
                 message: 'Error',
                 Error: error
@@ -255,27 +255,18 @@ const showWaitingToDivisi = async (req, res) => {
 const updateApprovedDivisi = async (req, res) => {
     const id = req.body.id
     const perdin_id = req.body.perdin_id
-    const prj_id = req.body.prj_id
-    const user_id = req.body.user_id
-    const status_id = req.body.status_id
-
+    const user = req.body.approved_divisi
     try {
         const data1 = await PerdinModel.UpdateApprovalByDivisi(id)
-        const data2 = await PerdinModel.UpdatePerdinStatusByDivisi(perdin_id)
-        const data3 = await PerdinModel.InsertHcApproval(perdin_id, prj_id, user_id)
-        send()
-        res.status(200)
+        const data2 = await PerdinModel.UpdatePerdinDailyStatusByDivisi(user, perdin_id)
+        const data3 = await PerdinModel.InsertHcApproval(perdin_id)
+        return res.status(200)
             .json({
                 message: 'Update success',
-                result: {
-                    data1: data1,
-                    data2: data2,
-                    data3: data3
-                }
             })
     } catch (error) {
         console.log(error)
-        res.status(500)
+        return res.status(500)
             .json({
                 message: 'Error',
                 Error: error
@@ -286,14 +277,14 @@ const updateApprovedDivisi = async (req, res) => {
 const showWaitingToHc = async (req, res) => {
     try {
         const [row] = await PerdinModel.waitingToApproveHc()
-        res.status(200)
+        return res.status(200)
             .json({
                 message: 'Show waiting',
                 result: row
             })
     } catch (error) {
         console.log(error)
-        res.status(500)
+        return res.status(500)
             .json({
                 message: 'Error',
                 Error: error
@@ -302,11 +293,11 @@ const showWaitingToHc = async (req, res) => {
 }
 
 const updateApprovedHc = async (req, res) => {
-    const perdin_id = req.body.perdin_id
     const id = req.body.id
+    const perdin_id = req.body.perdin_id
     try {
         const data1 = await PerdinModel.UpdateApprovalByHc(id)
-        const data2 = await PerdinModel.UpdatePerdinStatusByHc(perdin_id)
+        const data2 = await PerdinModel.UpdatePerdinDailyStatusByHc(perdin_id)
         return res.status(201).json({
             message: 'Updated'
         })
@@ -314,6 +305,28 @@ const updateApprovedHc = async (req, res) => {
         console.log(error)
         return res.status(500).json({
             message: error
+        })
+    }
+}
+
+const showPerdinDetail = async (req, res) => {
+    let id = req.params.id
+    try {
+        const [data] = await PerdinModel.SelectPerdinDetail(id)
+        if (data.length < 1) {
+            return res.status(200).json({
+                message: 'ID not found',
+                result: data
+            })
+        }
+        return res.status(200).json({
+            message: 'view detail data perdin daily',
+            result: data[0][0]
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Error while fetching perdin daily detail'
         })
     }
 }
@@ -327,5 +340,6 @@ export default {
     showWaitingToDivisi,
     showWaitingToHc,
     updateApprovedDivisi,
-    updateApprovedHc
+    updateApprovedHc,
+    showPerdinDetail
 }

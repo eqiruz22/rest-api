@@ -94,6 +94,7 @@ const fetchZoneByName = async (req, res) => {
             result: data
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             message: 'Error while fetching zone by title name'
         })

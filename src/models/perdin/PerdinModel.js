@@ -14,6 +14,13 @@ const SelectPerdinDaily = (search, offset, limit) => {
     return query
 }
 
+const SelectPerdinDetail = (id) => {
+    const sql = `CALL perdinDailyDetail(?)`
+    const value = [id]
+    const query = dbPool.execute(sql, value)
+    return query
+}
+
 const SelectPerdinDailyId = (id, search, offset, limit) => {
     const sql = `CALL showPerdinDailyById(?,?,?,?)`
     const value = [id, `%${search}%`, limit, offset]
@@ -50,9 +57,9 @@ const InsertDivisiApproval = (perdin_id, prj_id, user_id) => {
     return query
 }
 
-const InsertHcApproval = (perdin_id, prj_id, user_id) => {
-    const sql = `INSERT INTO hc_approval (perdin_id,prj_id,user_id,status_id) VALUES (?,?,?,1)`
-    const value = [perdin_id, prj_id, user_id]
+const InsertHcApproval = (perdin_id) => {
+    const sql = `INSERT INTO hc_approval (perdin_id,status_id) VALUES (?,1)`
+    const value = [perdin_id]
     const query = dbPool.execute(sql, value)
     return query
 }
@@ -76,9 +83,9 @@ const UpdateApprovalByDivisi = (id) => {
     return query
 }
 
-const UpdatePerdinStatusByDivisi = (id) => {
-    const sql = `UPDATE perdin SET status_id = 2 WHERE id = ?`
-    const value = [id]
+const UpdatePerdinDailyStatusByDivisi = (user_id, id) => {
+    const sql = `UPDATE perdin_harian SET approved_divisi = ?, status_id = 2 WHERE id = ?`
+    const value = [id, user_id]
     const query = dbPool.execute(sql, value)
     return query
 
@@ -91,8 +98,8 @@ const UpdateApprovalByHc = (id) => {
     return query
 }
 
-const UpdatePerdinStatusByHc = (id) => {
-    const sql = `UPDATE perdin SET status_id = 3 WHERE id = ?`
+const UpdatePerdinDailyStatusByHc = (id) => {
+    const sql = `UPDATE perdin_harian SET status_id = 3 WHERE id = ?`
     const value = [id]
     const query = dbPool.execute(sql, value)
     return query
@@ -123,6 +130,7 @@ export default {
     SelectPerdin,
     SelectPerdinDaily,
     SelectPerdinDailyId,
+    SelectPerdinDetail,
     InsertPerdin,
     InsertPerdinDaily,
     InsertDivisiApproval,
@@ -131,8 +139,8 @@ export default {
     waitingToApproveHc,
     UpdateApprovalByDivisi,
     UpdateApprovalByHc,
-    UpdatePerdinStatusByDivisi,
-    UpdatePerdinStatusByHc,
+    UpdatePerdinDailyStatusByDivisi,
+    UpdatePerdinDailyStatusByHc,
     CountPerdin,
     CountPerdinDaily,
     CountPerdinDailyById
