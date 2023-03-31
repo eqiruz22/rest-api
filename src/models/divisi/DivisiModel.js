@@ -52,6 +52,12 @@ const SelectDivisiName = (divisi_name) => {
     return query
 }
 
+const SelectDivisiForPermissionApproval = (manager_id, head_id, name) => {
+    const sql = `SELECT * FROM divisi WHERE divisi_manager = ? OR divisi_head = ? AND divisi_name = ?`
+    const query = dbPool.execute(sql, [manager_id, head_id, name])
+    return query
+}
+
 export default {
     InsertDivisi,
     SelectDivisi,
@@ -60,5 +66,6 @@ export default {
     UpdateDivisi,
     DeleteDivisi,
     CountDivisi,
-    SelectDivisiName
+    SelectDivisiName,
+    SelectDivisiForPermissionApproval
 }

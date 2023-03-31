@@ -144,11 +144,36 @@ const destroyDivisi = async (req, res) => {
     }
 }
 
+const selectDivisiApproval = async (req, res) => {
+    let id = req.body.approval_id
+    let id1 = req.body.approval_id1
+    let name = req.body.dv_name
+    try {
+        const [row] = await DivisiModel.SelectDivisiForPermissionApproval(id, id1, name)
+        if (row.length < 1) {
+            return res.status(403).json({
+                message: 'you dont have permission to approve',
+                result: row
+            })
+        }
+        return res.status(200).json({
+            message: 'you have permission',
+            result: row
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Server error'
+        })
+    }
+}
+
 export default {
     createDivisi,
     fetchDivisi,
     fetchDivisiWithHead,
     fetchDivisiById,
     updateDivisi,
-    destroyDivisi
+    destroyDivisi,
+    selectDivisiApproval
 }

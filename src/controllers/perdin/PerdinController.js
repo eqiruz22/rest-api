@@ -1,6 +1,7 @@
 import PerdinModel from "../../models/perdin/PerdinModel.js";
 import UserModel from "../../models/user/UserModel.js";
 import DivisiModel from "../../models/divisi/DivisiModel.js";
+import Email from "../../helper/Email.js";
 
 const showPerdin = async (req, res) => {
     try {
@@ -203,25 +204,22 @@ const createPerdinDaily = async (req, res) => {
         const [divisi] = await DivisiModel.SelectDivisiName(name)
         const [forApprovalManager] = await UserModel.SelectById(divisi[0]['divisi_manager'])
         const [forApprovaldivHead] = await UserModel.SelectById(divisi[0]['divisi_head'])
-        console.log(insertId)
-        if (userId[0][0]['title_name'] === 'Manager' || userId[0][0]['title_name'] === 'Sr Manager') {
+        if (['Manager', 'Sr Manager', 'VP', 'SVP'].includes(userId[0][0]['title_name'])) {
             if (dailyPerdin[0][1].affectedRows === 1) {
                 const insertTodivisiHead = await PerdinModel.InsertDivisiApproval(insertId, req.body.prj_id, forApprovaldivHead[0][0]['id'])
+                console.log(forApprovaldivHead[0][0]['email'])
+                Email.sendEmail(forApprovaldivHead[0][0]['email'])
                 return res.status(201).json({
                     message: 'perdin berhasil dibuat & approval dikirim ke divisi head',
-                    userId: userId[0][0],
-                    divisi_head: forApprovaldivHead[0][0],
-                    insertTodivisiHead: insertTodivisiHead
                 })
             }
         } else {
             if (dailyPerdin[0][1].affectedRows === 1) {
                 const insertToManager = await PerdinModel.InsertDivisiApproval(insertId, req.body.prj_id, forApprovalManager[0][0]['id'])
+                console.log(forApprovalManager[0][0]['email'])
+                Email.sendEmail(forApprovalManager[0][0]['email'])
                 return res.status(201).json({
                     message: 'perdin berhasil dibuat & approval dikirim ke manager divisi',
-                    userId: userId[0][0],
-                    manager_data: forApprovalManager[0][0],
-                    insertToManager: insertToManager
                 })
             }
         }
@@ -236,11 +234,21 @@ const createPerdinDaily = async (req, res) => {
 
 const showWaitingToDivisi = async (req, res) => {
     try {
-        const [row] = await PerdinModel.waitingToApproveDivisi()
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [totalRow] = await PerdinModel.CountDivisiApproval(search)
+        const [row] = await PerdinModel.waitingToApproveDivisi(search, offset, limit)
+        const totalPage = Math.ceil(totalRow[0]['divisi_count'] / limit)
         return res.status(200)
             .json({
                 message: 'Succes to show',
-                result: row[0]
+                result: row[0],
+                page: page,
+                limit: limit,
+                row: totalRow[0]['divisi_count'],
+                totalPage: totalPage
             })
     } catch (error) {
         console.log(error)
@@ -252,18 +260,62 @@ const showWaitingToDivisi = async (req, res) => {
     }
 }
 
+const showWaitingToDivisiById = async (req, res) => {
+    let id = req.params.id
+    try {
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [totalRow] = await PerdinModel.CountDivisiApprovalById(id, search)
+        const [data] = await PerdinModel.waitingToApproveDivisiById(id, search, offset, limit)
+        const totalPage = Math.ceil(totalRow[0]['divisi_count'] / limit)
+        if (data.length < 1) {
+            return res.status(404).json({
+                message: 'no data for show waiting divisi approval by id',
+                result: data,
+                page: page,
+                limit: limit,
+                row: totalRow[0]['divisi_count'],
+                totalPage: totalPage
+            })
+        }
+        return res.status(200).json({
+            message: 'show waiting divisi approval by id',
+            result: data,
+            page: page,
+            limit: limit,
+            row: totalRow[0]['divisi_count'],
+            totalPage: totalPage
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'error while fetching data approval by id'
+        })
+    }
+}
+
 const updateApprovedDivisi = async (req, res) => {
     const id = req.body.id
     const perdin_id = req.body.perdin_id
     const user = req.body.approved_divisi
+    const check = req.body.divisi_check
+    const name = req.body.dv_name
     try {
-        const data1 = await PerdinModel.UpdateApprovalByDivisi(id)
-        const data2 = await PerdinModel.UpdatePerdinDailyStatusByDivisi(user, perdin_id)
-        const data3 = await PerdinModel.InsertHcApproval(perdin_id)
-        return res.status(200)
-            .json({
-                message: 'Update success',
+        const [row] = await DivisiModel.SelectDivisiForPermissionApproval(check, check, name)
+        if (row.length < 1) {
+            return res.status(403).json({
+                message: 'you dont have permission to perform this action'
             })
+        } else {
+            const data1 = await PerdinModel.UpdateApprovalByDivisi(id)
+            const data2 = await PerdinModel.UpdatePerdinDailyStatusByDivisi(user, perdin_id)
+            const data3 = await PerdinModel.InsertHcApproval(perdin_id)
+            return res.status(200).json({
+                message: 'Approved',
+            })
+        }
     } catch (error) {
         console.log(error)
         return res.status(500)
@@ -276,11 +328,21 @@ const updateApprovedDivisi = async (req, res) => {
 
 const showWaitingToHc = async (req, res) => {
     try {
-        const [row] = await PerdinModel.waitingToApproveHc()
+        const page = parseInt(req.query.page) || 0
+        const limit = parseInt(req.query.limit) || 10
+        const search = req.query.query || ''
+        const offset = limit * page
+        const [totalRow] = await PerdinModel.CountApprovalHC(search)
+        const [row] = await PerdinModel.waitingToApproveHc(search, offset, limit)
+        const totalPage = Math.ceil(totalRow[0]['hc_count'] / limit)
         return res.status(200)
             .json({
                 message: 'Show waiting',
-                result: row
+                result: row,
+                page: page,
+                limit: limit,
+                row: totalRow[0]['hc_count'],
+                totalPage: totalPage
             })
     } catch (error) {
         console.log(error)
@@ -295,12 +357,26 @@ const showWaitingToHc = async (req, res) => {
 const updateApprovedHc = async (req, res) => {
     const id = req.body.id
     const perdin_id = req.body.perdin_id
+    const user = req.body.approved_hc
+
     try {
-        const data1 = await PerdinModel.UpdateApprovalByHc(id)
-        const data2 = await PerdinModel.UpdatePerdinDailyStatusByHc(perdin_id)
-        return res.status(201).json({
-            message: 'Updated'
-        })
+        if (req.body.divisi === 'HCGA') {
+            if (req.body.title === 'Manager' || req.body.title === 'Sr Manager') {
+                const data1 = await PerdinModel.UpdateApprovalByHc(id)
+                const data2 = await PerdinModel.UpdatePerdinDailyStatusByHc(user, perdin_id)
+                return res.status(201).json({
+                    message: 'Approved'
+                })
+            } else {
+                return res.status(403).json({
+                    message: 'you dont have permission to perform this action'
+                })
+            }
+        } else {
+            return res.status(403).json({
+                message: 'you dont have permission to perform this action'
+            })
+        }
     } catch (error) {
         console.log(error)
         return res.status(500).json({
@@ -331,6 +407,29 @@ const showPerdinDetail = async (req, res) => {
     }
 }
 
+const destroyPerdinDaily = async (req, res) => {
+    let id = req.params.id
+    try {
+        const data = await PerdinModel.DeletePerdinDaily(id)
+        if (data.length < 1) {
+            return res.status(404).json({
+                message: 'ID not found'
+            })
+        }
+        return res.status(200).json({
+            message: 'Delete Perdin Success'
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Error while delete perdin daily'
+        })
+    }
+}
+
+
+
+
 export default {
     showPerdin,
     showPerdinDaily,
@@ -338,8 +437,10 @@ export default {
     createPerdin,
     createPerdinDaily,
     showWaitingToDivisi,
+    showWaitingToDivisiById,
     showWaitingToHc,
     updateApprovedDivisi,
     updateApprovedHc,
-    showPerdinDetail
+    showPerdinDetail,
+    destroyPerdinDaily,
 }

@@ -29,51 +29,16 @@ const showTitle = async (req, res) => {
 }
 
 const createTitle = async (req, res) => {
-    const title = req.body.title
-    const meal = req.body.meal
-    const rent = req.body.rent
-    const hardship = req.body.hardship
-    const pulsa = req.body.pulsa
-    const car = req.body.car
+    const title = req.body.title_name
 
-    if (!req.body.title) {
+    if (!req.body.title_name) {
         return res.status(400)
             .json({
                 message: 'title is required'
             })
     }
-    if (!req.body.meal) {
-        return res.status(400)
-            .json({
-                message: 'meal allowance is required'
-            })
-    }
-    if (!req.body.rent) {
-        return res.status(400)
-            .json({
-                message: 'rent house is required'
-            })
-    }
-    if (!req.body.hardship) {
-        return res.status(400)
-            .json({
-                message: 'hardship allowance is required'
-            })
-    }
-    if (!req.body.pulsa) {
-        return res.status(400)
-            .json({
-                message: 'pulsa allowance is required'
-            })
-    }
-    if (!req.body.car) {
-        return res.status(400)
-            .json({
-                message: 'car rent is required'
-            })
-    }
     try {
-        await TitleModel.InsertTitle(title, rent, meal, hardship, pulsa, car)
+        await TitleModel.InsertTitle(title)
         return res.status(200)
             .json({
                 message: 'Success create new title'
@@ -111,51 +76,16 @@ const findById = async (req, res) => {
 
 const UpdateById = async (req, res) => {
     let id = req.params.id
-    const title = req.body.title
-    const meal = req.body.meal
-    const rent = req.body.rent
-    const hardship = req.body.hardship
-    const pulsa = req.body.pulsa
-    const car = req.body.car
+    const title = req.body.title_name
 
-    if (!req.body.title) {
+    if (!req.body.title_name) {
         return res.status(400)
             .json({
                 message: 'title is required'
             })
     }
-    if (!req.body.meal) {
-        return res.status(400)
-            .json({
-                message: 'meal allowance is required'
-            })
-    }
-    if (!req.body.rent) {
-        return res.status(400)
-            .json({
-                message: 'rent house is required'
-            })
-    }
-    if (!req.body.hardship) {
-        return res.status(400)
-            .json({
-                message: 'hardship allowance is required'
-            })
-    }
-    if (!req.body.pulsa) {
-        return res.status(400)
-            .json({
-                message: 'pulsa allowance is required'
-            })
-    }
-    if (!req.body.car) {
-        return res.status(400)
-            .json({
-                message: 'car rent is required'
-            })
-    }
     try {
-        const data = await TitleModel.Update(title, meal, rent, hardship, pulsa, car, id)
+        const data = await TitleModel.Update(title, id)
         return res.status(200).json({
             message: 'Update Success',
             value: data
@@ -200,11 +130,28 @@ const fetchTitleName = async (req, res) => {
     }
 }
 
+const ForTest = async (req, res) => {
+    try {
+        const [row] = await TitleModel.SelectTitleTest()
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        return res.end(JSON.stringify({
+            result: row
+        }))
+    } catch (error) {
+        console.log(error)
+        res.writeHead(500, { 'Content-Type': 'application/json' })
+        return res.end(JSON.stringify({
+            message: 'Internal server error'
+        }))
+    }
+}
+
 export default {
     showTitle,
     createTitle,
     findById,
     UpdateById,
     destroyTitle,
-    fetchTitleName
+    fetchTitleName,
+    ForTest
 }
