@@ -9,42 +9,46 @@ const fetchPrj = async (req, res) => {
         const [count] = await PrjModel.CountPrj(search)
         const [row] = await PrjModel.SelectPrj(search, offset, limit)
         const totalPage = Math.ceil(count[0]['prj'] / limit)
-        return res.status(201)
-            .json({
-                message: 'Show prj',
-                result: row,
-                page: page,
-                limit: limit,
-                row: count[0]['prj'],
-                totalPage: totalPage
-            })
+        return res.status(200).json({
+            message: 'Show prj',
+            result: row,
+            page: page,
+            limit: limit,
+            row: count[0]['prj'],
+            totalPage: totalPage
+        })
     } catch (error) {
         console.log(error)
-        return res.status(500)
-            .json({
-                message: 'Error',
-                Error: error
-            })
+        return res.status(500).json({
+            message: 'Error',
+            Error: error
+        })
     }
 }
 
 const createPrj = async (req, res) => {
     const prj_name = req.body.prj_name
+    const project = req.body.project_name
     const status = req.body.status
 
     if (!req.body.prj_name) {
-        return res.status(500).json({
+        return res.status(400).json({
             message: 'Prj Name must be have a value'
+        })
+    }
+    if (!req.body.project_name) {
+        return res.status(400).json({
+            message: 'Project name is required!'
         })
     }
 
     if (!req.body.status) {
-        return res.status(500).json({
+        return res.status(400).json({
             message: 'Status must be open or closed'
         })
     }
     try {
-        const data = await PrjModel.InsertPrj(prj_name, status)
+        await PrjModel.InsertPrj(prj_name, project, status)
         return res.status(200).json({
             message: 'Succes create new PRJ'
         })
@@ -71,18 +75,29 @@ const fetchById = async (req, res) => {
 const updatePrj = async (req, res) => {
     let id = req.params.id
     const prj_name = req.body.prj_name
+    const project = req.body.project_name
     const status = req.body.status
 
     if (!req.body.prj_name) {
         return res.status(400).json({ message: 'PRJ name cannot be null' })
+    }
+    if (!req.body.project_name) {
+        return res.status(400).json({ message: 'Project name is required!' })
     }
     if (!req.body.status) {
         return res.status(400).json({ message: 'status prj must be open or closed' })
     }
 
     try {
-        const data = await PrjModel.UpdatePrj(prj_name, status, id)
-        return res.status(200).json({ message: 'Update success' })
+        const [data] = await PrjModel.SelectById(id)
+        if (data.length < 1) {
+            return res.status(404).json({
+                message: `Project id ${id} not found`
+            })
+        } else {
+            await PrjModel.UpdatePrj(prj_name, project, status, id)
+            return res.status(200).json({ message: 'Update success' })
+        }
     } catch (error) {
         console.log(error)
         return res.status(500).json({
@@ -95,8 +110,15 @@ const updatePrj = async (req, res) => {
 const destroyPrj = async (req, res) => {
     let id = req.params.id
     try {
-        const data = await PrjModel.DeletePrj(id)
-        return res.status(200).json({ message: 'Delete success' })
+        const [data] = await PrjModel.SelectById(id)
+        if (data.length < 1) {
+            return res.status(404).json({
+                message: `Project id ${id} not found`
+            })
+        } else {
+            await PrjModel.DeletePrj(id)
+            return res.status(200).json({ message: 'Delete success' })
+        }
     } catch (error) {
         console.log(error)
         return res.status(500).json({ message: 'Error while delete data' })

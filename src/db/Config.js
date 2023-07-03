@@ -1,7 +1,7 @@
 import mysql from 'mysql2'
 
 const dbPool = mysql.createPool({
-    host: 'localhost',
+    host: '127.0.0.1',
     user: 'root',
     password: 'user.100',
     database: 'rest-api',

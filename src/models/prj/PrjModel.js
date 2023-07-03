@@ -1,29 +1,29 @@
 import dbPool from '../../db/Config.js'
 
 const SelectPrj = (search, offset, limit) => {
-    const sql = `SELECT id,prj_name,status FROM prj WHERE prj_name LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?`
+    const sql = `SELECT id,prj_name,project_name,status FROM prj WHERE prj_name LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?`
     const value = [`%${search}%`, limit, offset]
     const query = dbPool.execute(sql, value)
     return query
 }
 
 const SelectById = (id) => {
-    const sql = `SELECT id,prj_name,status FROM prj WHERE id =?`
+    const sql = `SELECT id,prj_name,project_name,status FROM prj WHERE id =?`
     const value = [id]
     const query = dbPool.execute(sql, value)
     return query
 }
 
-const InsertPrj = (prj_name, status) => {
-    const sql = `INSERT INTO prj (prj_name,status) VALUES (?,?)`
-    const value = [prj_name, status]
+const InsertPrj = (prj_name, project, status) => {
+    const sql = `INSERT INTO prj (prj_name,project_name,status) VALUES (?,?,?)`
+    const value = [prj_name, project, status]
     const query = dbPool.execute(sql, value)
     return query
 }
 
-const UpdatePrj = (prj_name, status, id) => {
-    const sql = `UPDATE prj SET prj_name=?,status=? WHERE id=?`
-    const value = [prj_name, status, id]
+const UpdatePrj = (prj_name, project, status, id) => {
+    const sql = `UPDATE prj SET prj_name=?,project_name=?,status=? WHERE id=?`
+    const value = [prj_name, project, status, id]
     const query = dbPool.execute(sql, value)
     return query
 }

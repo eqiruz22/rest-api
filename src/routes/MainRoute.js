@@ -10,7 +10,7 @@ import requireAuth from '../middleware/requireAuth.js';
 const router = express.Router()
 
 router.post('/login', UserController.Login)
-router.use(requireAuth)
+//router.use(requireAuth)
 router.get('/show', UserController.getAll)
 router.get('/show/:id', UserController.getById)
 router.get('/count', UserController.countAll)
@@ -47,6 +47,7 @@ router.post('/perdin-create', PerdinController.createPerdin)
 router.post('/perdin-daily', PerdinController.createPerdinDaily)
 router.post('/approved-divisi', PerdinController.updateApprovedDivisi)
 router.post('/approved-hc', PerdinController.updateApprovedHc)
+router.patch('/perdin-daily', PerdinController.updatePerdinDaily)
 router.delete('/perdin-daily/:id', PerdinController.destroyPerdinDaily)
 
 router.get('/divisi', DivisiController.fetchDivisi)

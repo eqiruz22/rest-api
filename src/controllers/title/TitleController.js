@@ -59,7 +59,7 @@ const findById = async (req, res) => {
         const [row] = await TitleModel.SelectById(id)
         if (row.length < 1) {
             return res.status(404).json({
-                message: 'Not found'
+                message: `Title id ${id} not found`
             })
         }
         return res.status(200).json({
@@ -102,14 +102,21 @@ const UpdateById = async (req, res) => {
 const destroyTitle = async (req, res) => {
     let id = req.params.id
     try {
-        await TitleModel.Delete(id)
-        return res.status(200).json({
-            message: 'Update success'
-        })
+        const [data] = await TitleModel.SelectById(id)
+        if (data.length < 1) {
+            return res.status(404).json({
+                message: `Title id ${id} not found`
+            })
+        } else {
+            await TitleModel.Delete(id)
+            return res.status(200).json({
+                message: 'Deleted'
+            })
+        }
     } catch (error) {
         console.log(error)
         return res.status(500).json({
-            message: 'error while'
+            message: error
         })
     }
 }

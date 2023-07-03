@@ -46,7 +46,7 @@ const createZone = async (req, res) => {
     }
 
     try {
-        const data = await ZoneModel.InsertZone(zone, title, transport, airplane, hotel, meal, allowance)
+        await ZoneModel.InsertZone(zone, title, transport, airplane, hotel, meal, allowance)
         return res.status(200).json({
             message: 'Success create new zone'
         })
@@ -124,22 +124,54 @@ const fetchZoneById = async (req, res) => {
 }
 
 const UpdateZone = async (req, res) => {
-    const name = req.body.zone_name
-    const transport = req.body.transport_airplane
-    const airplane = req.body.transport_non_airplane
+    const zone = req.body.zone_name
     const title = req.body.title_id
+    const transport = req.body.transport_non_airplane
+    const airplane = req.body.transport_airplane
     const hotel = req.body.hotel
     const meal = req.body.meal_allowance
     const allowance = req.body.allowance
-    let id = req.params.id
-    if (!req.body) {
+    const id = req.params.id
+
+    console.log(zone, title, transport, airplane, hotel, meal, allowance, id)
+
+    if (!req.body.zone_name) {
         return res.status(400).json({
-            message: 'All field is required'
+            message: 'Zone Name cannot be null'
         })
     }
-
+    if (!req.body.title_id) {
+        return res.status(400).json({
+            message: 'Title id cannot be null'
+        })
+    }
+    if (!req.body.transport_non_airplane) {
+        return res.status(400).json({
+            message: 'Transport Non Airplane cannot be null'
+        })
+    }
+    if (!req.body.transport_airplane) {
+        return res.status(400).json({
+            message: 'Transport Airplane cannot be null'
+        })
+    }
+    if (!req.body.hotel) {
+        return res.status(400).json({
+            message: 'Hotel cannot be null'
+        })
+    }
+    if (!req.body.meal_allowance) {
+        return res.status(400).json({
+            message: 'Meal Allowance cannot be null'
+        })
+    }
+    if (!req.body.allowance) {
+        return res.status(400).json({
+            message: 'Allowance cannot be null'
+        })
+    }
     try {
-        const data = await ZoneModel.Update(name, title, airplane, transport, hotel, meal, allowance, id)
+        await ZoneModel.Update(zone, title, airplane, transport, hotel, meal, allowance, id)
         return res.status(200).json({
             message: 'Update zone success'
         })

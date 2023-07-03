@@ -2,6 +2,7 @@ import PerdinModel from "../../models/perdin/PerdinModel.js";
 import UserModel from "../../models/user/UserModel.js";
 import DivisiModel from "../../models/divisi/DivisiModel.js";
 import Email from "../../helper/Email.js";
+import { formatDateWithoutTime } from "../../helper/helperDate.js";
 
 const showPerdin = async (req, res) => {
     try {
@@ -232,6 +233,144 @@ const createPerdinDaily = async (req, res) => {
     }
 }
 
+const updatePerdinDaily = async (req, res) => {
+    const data = {
+        prj_id: req.body.prj_id,
+        user_id: req.body.user_id,
+        title_name: req.body.title_name,
+        zone_id: req.body.zone_id,
+        maksud_perjalanan: req.body.maksud_perjalanan,
+        tempat_tujuan: req.body.tempat_tujuan,
+        start_date: req.body.start_date,
+        end_date: req.body.end_date,
+        lama_perjalanan: req.body.lama_perjalanan,
+        transport_tujuan: req.body.transport_tujuan,
+        transport_local: req.body.transport_local,
+        penginapan: req.body.penginapan,
+        meals: req.body.meals,
+        allowance: req.body.allowance,
+        rapid: req.body.rapid,
+        lain: req.body.lain,
+        jumlah_advance: req.body.jumlah_advance,
+        id: req.body.id
+    }
+
+    if (!req.body.prj_id) {
+        return res.status(400).json({
+            message: 'PRJ ID is required!'
+        })
+    }
+    if (!req.body.user_id) {
+        return res.status(400).json({
+            message: 'Name is required!'
+        })
+    }
+    if (!req.body.title_name) {
+        return res.status(400).json({
+            message: 'Title is required!'
+        })
+    }
+    if (!req.body.zone_id) {
+        return res.status(400).json({
+            message: 'Zone name is required!'
+        })
+    }
+    if (!req.body.maksud_perjalanan) {
+        return res.status(400).json({
+            message: 'Maksud perjalanan is required!'
+        })
+    }
+    if (!req.body.tempat_tujuan) {
+        return res.status(400).json({
+            message: 'Tempat tujuan is required!'
+        })
+    }
+    if (!req.body.lama_perjalanan) {
+        return res.status(400).json({
+            message: 'Lama perjalanan is required!'
+        })
+    }
+    if (!req.body.transport_tujuan) {
+        return res.status(400).json({
+            message: 'Transport tujuan is required!'
+        })
+    }
+    if (!req.body.transport_local) {
+        return res.status(400).json({
+            message: 'Transport local is required!'
+        })
+    }
+    if (!req.body.penginapan) {
+        return res.status(400).json({
+            message: 'Penginapan is required!'
+        })
+    }
+    if (!req.body.meals) {
+        return res.status(400).json({
+            message: 'Meals is required!'
+        })
+    }
+    if (!req.body.allowance) {
+        return res.status(400).json({
+            message: 'Allowance is required!'
+        })
+    }
+    // if (!req.body.rapid) {
+    //     return res.status(400).json({
+    //         message: 'Rapid test is required!'
+    //     })
+    // }
+    // if (!req.body.lain) {
+    //     return res.status(400).json({
+    //         message: 'Lain lain is required!'
+    //     })
+    // }
+    if (!req.body.jumlah_advance) {
+        return res.status(400).json({
+            message: 'Jumlah Advance is required!'
+        })
+    }
+    console.log(data)
+    try {
+        const [result] = await PerdinModel.SelectPerdinDetail(data.id)
+        if (result.length < 1) {
+            return res.status(404).json({
+                message: `Perdin id ${data.id} not found`
+            })
+        } else {
+            await PerdinModel.UpdatePerdin(
+                data.prj_id,
+                data.user_id,
+                data.title_name,
+                data.zone_id,
+                data.maksud_perjalanan,
+                data.tempat_tujuan,
+                data.start_date,
+                data.end_date,
+                data.lama_perjalanan,
+                data.transport_tujuan,
+                data.transport_local,
+                data.penginapan,
+                data.meals,
+                data.allowance,
+                data.rapid,
+                data.lain,
+                data.jumlah_advance,
+                data.id
+            )
+            return res.status(200).json({
+                message: 'Updated'
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error
+        })
+    }
+
+}
+
 const showWaitingToDivisi = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 0
@@ -389,15 +528,24 @@ const showPerdinDetail = async (req, res) => {
     let id = req.params.id
     try {
         const [data] = await PerdinModel.SelectPerdinDetail(id)
+        const result = data.map(item => {
+            const start_date = formatDateWithoutTime(item.start_date)
+            const end_date = formatDateWithoutTime(item.end_date)
+            return {
+                ...item,
+                start_date,
+                end_date
+            }
+        })
         if (data.length < 1) {
-            return res.status(200).json({
-                message: 'ID not found',
-                result: data
+            return res.status(404).json({
+                message: `perdin ${id} not found`,
+                result: null
             })
         }
         return res.status(200).json({
             message: 'view detail data perdin daily',
-            result: data[0][0]
+            result: result[0]
         })
     } catch (error) {
         console.log(error)
@@ -441,6 +589,7 @@ export default {
     showWaitingToHc,
     updateApprovedDivisi,
     updateApprovedHc,
+    updatePerdinDaily,
     showPerdinDetail,
     destroyPerdinDaily,
 }
