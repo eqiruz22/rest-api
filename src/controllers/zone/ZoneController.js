@@ -86,7 +86,8 @@ const fetchZoneWithTitle = async (req, res) => {
 }
 
 const fetchZoneByName = async (req, res) => {
-    const name = req.params.name
+    const name = req.query.title
+    console.log(name)
     try {
         const [data] = await ZoneModel.SelectZoneByTitle(name)
         return res.status(200).json({

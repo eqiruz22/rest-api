@@ -125,10 +125,26 @@ const destroyPrj = async (req, res) => {
     }
 }
 
+const ListPrj = async (req, res) => {
+    try {
+        const [data] = await PrjModel.SelectPrjAll()
+        return res.status(200).json({
+            message: 'show prj',
+            result: data
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: error
+        })
+    }
+}
+
 export default {
     fetchPrj,
     fetchById,
     createPrj,
     updatePrj,
-    destroyPrj
+    destroyPrj,
+    ListPrj
 }

@@ -42,11 +42,18 @@ const CountPrj = (search) => {
     return query
 }
 
+const SelectPrjAll = () => {
+    const sql = `SELECT id,prj_name,project_name FROM prj WHERE status = 'Open'`
+    const query = dbPool.execute(sql)
+    return query
+}
+
 export default {
     SelectPrj,
     SelectById,
     InsertPrj,
     UpdatePrj,
     DeletePrj,
-    CountPrj
+    CountPrj,
+    SelectPrjAll
 }

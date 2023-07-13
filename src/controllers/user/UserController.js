@@ -52,15 +52,19 @@ const getById = async (req, res) => {
 
     try {
         const [rows] = await UserModel.SelectById(id)
+        const withoutPassword = rows.map(item => {
+            const { password, ...withoutPassword } = item
+            return withoutPassword
+        })
         if (rows.length < 1) {
             return res.status(201).json({
-                message: 'User not found',
-                value: rows
+                message: `User id ${id} not found`,
+                value: null
             })
         }
         return res.status(200).json({
-            message: 'Show user by id',
-            value: rows[0]
+            message: `Show user id ${id}`,
+            value: withoutPassword
         })
 
     } catch (error) {
@@ -155,7 +159,7 @@ const updateData = async (req, res) => {
     if (req.body.has_role === 1) {
         if (!req.body.password) {
             try {
-                const [rows] = await UserModel.Update(email, name, role, title_id, divisi, id)
+                await UserModel.Update(email, name, role, title_id, divisi, id)
                 return res.status(201).json({
                     message: 'Update data success',
                 })
@@ -168,7 +172,7 @@ const updateData = async (req, res) => {
             }
         } else {
             try {
-                const [data] = await UserModel.UpdateWithPassword(email, name, role, title_id, divisi, hash, id)
+                await UserModel.UpdateWithPassword(email, name, role, title_id, divisi, hash, id)
                 return res.status(201).json({
                     message: 'Update data with password success'
                 })
@@ -183,7 +187,7 @@ const updateData = async (req, res) => {
     } else {
         if (!req.body.password) {
             try {
-                const [rows] = await UserModel.UpdateForUser(email, name, id)
+                await UserModel.UpdateForUser(email, name, id)
                 return res.status(201).json({
                     message: 'Update data success'
                 })
@@ -195,7 +199,7 @@ const updateData = async (req, res) => {
             }
         } else {
             try {
-                const [data] = await UserModel.UpdateForUserWithPassword(email, name, hash, id)
+                await UserModel.UpdateForUserWithPassword(email, name, hash, id)
                 return res.status(201).json({
                     message: 'Update data with password'
                 })

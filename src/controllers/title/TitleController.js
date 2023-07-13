@@ -1,3 +1,4 @@
+import Email from "../../helper/Email.js";
 import TitleModel from "../../models/title/TitleModel.js";
 
 const showTitle = async (req, res) => {
@@ -138,18 +139,30 @@ const fetchTitleName = async (req, res) => {
 }
 
 const ForTest = async (req, res) => {
+    const data = {
+        name: req.body.name,
+        email: req.body.email
+    }
     try {
-        const [row] = await TitleModel.SelectTitleTest()
-        res.writeHead(200, { 'Content-Type': 'application/json' })
-        return res.end(JSON.stringify({
-            result: row
-        }))
+        // const [row] = await TitleModel.SelectTitleTest()
+        // res.writeHead(200, { 'Content-Type': 'application/json' })
+        // return res.end(JSON.stringify({
+        //     result: row
+        // }))
+        const send = await Email.sendEmail(data.email, data.name)
+        console.log(send)
+        return res.status(200).json({
+            message: 'success'
+        })
     } catch (error) {
         console.log(error)
-        res.writeHead(500, { 'Content-Type': 'application/json' })
-        return res.end(JSON.stringify({
-            message: 'Internal server error'
-        }))
+        // res.writeHead(500, { 'Content-Type': 'application/json' })
+        // return res.end(JSON.stringify({
+        //     message: 'Internal server error'
+        // }))
+        return res.status(500).json({
+            error
+        })
     }
 }
 

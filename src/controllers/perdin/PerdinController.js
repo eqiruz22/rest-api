@@ -42,7 +42,7 @@ const showPerdinDaily = async (req, res) => {
         const [data] = await PerdinModel.SelectPerdinDaily(search, offset, limit)
         const totalPage = Math.ceil(totalRow[0]['perdin'] / limit)
         if (data.length < 1) {
-            return res.status(201)
+            return res.status(200)
                 .json({
                     message: 'no data perdin for show',
                     result: data,
@@ -54,7 +54,7 @@ const showPerdinDaily = async (req, res) => {
         }
         return res.status(200)
             .json({
-                message: 'success get data perdin',
+                message: 'success get data perdin daily',
                 result: data,
                 page: page,
                 limit: limit,
@@ -82,10 +82,10 @@ const showPerdinDailyById = async (req, res) => {
         const [data] = await PerdinModel.SelectPerdinDailyId(id, search, offset, limit)
         const totalPage = Math.ceil(totalRow[0]['perdin'] / limit)
         if (data.length < 1) {
-            return res.status(201)
+            return res.status(200)
                 .json({
                     message: 'no data perdin for show by id',
-                    result: data[0],
+                    result: data,
                     page: page,
                     limit: limit,
                     row: totalRow[0]['perdin'],
@@ -95,7 +95,7 @@ const showPerdinDailyById = async (req, res) => {
         return res.status(200)
             .json({
                 message: 'show data perdin by id',
-                result: data[0],
+                result: data,
                 page: page,
                 limit: limit,
                 row: totalRow[0]['perdin'],
@@ -200,29 +200,24 @@ const createPerdinDaily = async (req, res) => {
     try {
         const dailyPerdin = await PerdinModel.InsertPerdinDaily(body, resultStart, resultEnd)
         const [userId] = await UserModel.SelectById(req.body.user_id)
-        const insertId = dailyPerdin[0][0][0]['LAST_INSERT_ID()']
-        const name = userId[0][0]['divisi_name']
+        const insertId = dailyPerdin[0]['insertId']
+        const name = userId[0]['divisi_name']
         const [divisi] = await DivisiModel.SelectDivisiName(name)
         const [forApprovalManager] = await UserModel.SelectById(divisi[0]['divisi_manager'])
         const [forApprovaldivHead] = await UserModel.SelectById(divisi[0]['divisi_head'])
-        if (['Manager', 'Sr Manager', 'VP', 'SVP'].includes(userId[0][0]['title_name'])) {
-            if (dailyPerdin[0][1].affectedRows === 1) {
-                const insertTodivisiHead = await PerdinModel.InsertDivisiApproval(insertId, req.body.prj_id, forApprovaldivHead[0][0]['id'])
-                console.log(forApprovaldivHead[0][0]['email'])
-                Email.sendEmail(forApprovaldivHead[0][0]['email'])
-                return res.status(201).json({
-                    message: 'perdin berhasil dibuat & approval dikirim ke divisi head',
-                })
-            }
+        if (['Manager', 'Sr Manager', 'VP', 'SVP'].includes(userId[0]['title_name'])) {
+            await PerdinModel.InsertDivisiApproval(insertId, req.body.prj_id, forApprovaldivHead[0]['id'])
+            Email.sendEmail(forApprovaldivHead[0]['email'], forApprovaldivHead[0]['name'])
+            return res.status(200).json({
+                message: 'success',
+
+            })
         } else {
-            if (dailyPerdin[0][1].affectedRows === 1) {
-                const insertToManager = await PerdinModel.InsertDivisiApproval(insertId, req.body.prj_id, forApprovalManager[0][0]['id'])
-                console.log(forApprovalManager[0][0]['email'])
-                Email.sendEmail(forApprovalManager[0][0]['email'])
-                return res.status(201).json({
-                    message: 'perdin berhasil dibuat & approval dikirim ke manager divisi',
-                })
-            }
+            await PerdinModel.InsertDivisiApproval(insertId, req.body.prj_id, forApprovalManager[0]['id'])
+            Email.sendEmail(forApprovalManager[0]['email'], forApprovalManager[0]['name'])
+            return res.status(200).json({
+                message: 'success',
+            })
         }
     } catch (error) {
         console.log(error)
@@ -315,22 +310,12 @@ const updatePerdinDaily = async (req, res) => {
             message: 'Allowance is required!'
         })
     }
-    // if (!req.body.rapid) {
-    //     return res.status(400).json({
-    //         message: 'Rapid test is required!'
-    //     })
-    // }
-    // if (!req.body.lain) {
-    //     return res.status(400).json({
-    //         message: 'Lain lain is required!'
-    //     })
-    // }
+
     if (!req.body.jumlah_advance) {
         return res.status(400).json({
             message: 'Jumlah Advance is required!'
         })
     }
-    console.log(data)
     try {
         const [result] = await PerdinModel.SelectPerdinDetail(data.id)
         if (result.length < 1) {
@@ -383,7 +368,7 @@ const showWaitingToDivisi = async (req, res) => {
         return res.status(200)
             .json({
                 message: 'Succes to show',
-                result: row[0],
+                result: row,
                 page: page,
                 limit: limit,
                 row: totalRow[0]['divisi_count'],
@@ -448,9 +433,9 @@ const updateApprovedDivisi = async (req, res) => {
                 message: 'you dont have permission to perform this action'
             })
         } else {
-            const data1 = await PerdinModel.UpdateApprovalByDivisi(id)
-            const data2 = await PerdinModel.UpdatePerdinDailyStatusByDivisi(user, perdin_id)
-            const data3 = await PerdinModel.InsertHcApproval(perdin_id)
+            await PerdinModel.UpdateApprovalByDivisi(id)
+            await PerdinModel.UpdatePerdinDailyStatusByDivisi(user, perdin_id)
+            await PerdinModel.InsertHcApproval(perdin_id)
             return res.status(200).json({
                 message: 'Approved',
             })
@@ -499,11 +484,11 @@ const updateApprovedHc = async (req, res) => {
     const user = req.body.approved_hc
 
     try {
-        if (req.body.divisi === 'HCGA') {
+        if (req.body.divisi === 'HC') {
             if (req.body.title === 'Manager' || req.body.title === 'Sr Manager') {
-                const data1 = await PerdinModel.UpdateApprovalByHc(id)
-                const data2 = await PerdinModel.UpdatePerdinDailyStatusByHc(user, perdin_id)
-                return res.status(201).json({
+                await PerdinModel.UpdateApprovalByHc(id)
+                await PerdinModel.UpdatePerdinDailyStatusByHc(user, perdin_id)
+                return res.status(200).json({
                     message: 'Approved'
                 })
             } else {

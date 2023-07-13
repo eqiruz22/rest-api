@@ -1,16 +1,12 @@
 import nodemailer from 'nodemailer'
-
 const createTransport = () => {
     const transporter = nodemailer.createTransport({
-        host: process.env.HOST,
-        port: 587,
-        secure: false,
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
             user: process.env.ACCOUNT_EMAIL,
             pass: process.env.ACCOUNT_PASSWORD
-        },
-        tls: {
-            rejectUnauthorized: false
         }
     })
     transporter.verify(function (error, success) {
@@ -24,13 +20,14 @@ const createTransport = () => {
     return transporter
 }
 
-const sendEmail = async (receipent) => {
+const sendEmail = async (receipent, name) => {
     const transport = createTransport()
     const mail = {
         from: process.env.ACCOUNT_EMAIL,
         to: receipent,
         subject: 'test email',
-        html: '<b>Sekarang ada from nya dan sudah aman harusnya</b>',
+        text: `hello ${name} you have pending approval to waiting . 
+        click this link to approve http://localhost:3000/waiting-to-approve-divisi`
     }
     try {
         const info = await transport.sendMail(mail)
@@ -39,6 +36,7 @@ const sendEmail = async (receipent) => {
         console.log(error)
     }
 }
+
 
 export default {
     sendEmail
