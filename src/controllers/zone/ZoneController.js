@@ -1,5 +1,5 @@
 import ZoneModel from "../../models/zone/ZoneModel.js";
-
+import xlsx from 'xlsx'
 const createZone = async (req, res) => {
     const zone = req.body.zone_name
     const title = req.body.title_id
@@ -54,7 +54,6 @@ const createZone = async (req, res) => {
         console.log(error)
         return res.status(500).json({
             message: 'Error while creaete zone',
-            error: error
         })
     }
 }
@@ -80,7 +79,6 @@ const fetchZoneWithTitle = async (req, res) => {
         console.log(error)
         return res.status(500).json({
             message: 'Error while fetching zone with title',
-            error: error
         })
     }
 }
@@ -108,7 +106,8 @@ const fetchZoneById = async (req, res) => {
         const [data] = await ZoneModel.SelectZoneById(id)
         if (data.length < 1) {
             return res.status(404).json({
-                message: 'ID not found'
+                message: 'ID not found',
+                result: null
             })
         }
         return res.status(200).json({
@@ -119,7 +118,6 @@ const fetchZoneById = async (req, res) => {
         console.log(error)
         return res.status(500).json({
             message: 'Error while fetching zone by id',
-            error: error
         })
     }
 }
@@ -133,8 +131,6 @@ const UpdateZone = async (req, res) => {
     const meal = req.body.meal_allowance
     const allowance = req.body.allowance
     const id = req.params.id
-
-    console.log(zone, title, transport, airplane, hotel, meal, allowance, id)
 
     if (!req.body.zone_name) {
         return res.status(400).json({
@@ -180,7 +176,6 @@ const UpdateZone = async (req, res) => {
         console.log(error)
         return res.status(500).json({
             message: 'Error while update zone',
-            error: error
         })
     }
 }
@@ -190,7 +185,7 @@ const DeleteZone = async (req, res) => {
     try {
         const data = await ZoneModel.Destroy(id)
         return res.status(200).json({
-            message: `success delete zone with id ${id}`
+            message: `success delete zone`
         })
     } catch (error) {
         console.log(error)
@@ -201,11 +196,35 @@ const DeleteZone = async (req, res) => {
     }
 }
 
+const getReportZone = async (req, res) => {
+    try {
+        const [rows] = await ZoneModel.ForReportZone()
+        const header = ['#', 'Zone Name', 'Title', 'Transport', 'Airplane', 'Hotel', 'Meal', 'Allowance']
+        const data = rows.map((row, index) => [index + 1, row.zone_name, row.title_name, row.transport_non_airplane.toLocaleString().split(',').join('.'), row.transport_airplane.toLocaleString().split(',').join('.'), row.hotel.toLocaleString().split(',').join('.'), row.meal_allowance.toLocaleString().split(',').join('.'), row.allowance.toLocaleString().split(',').join('.')])
+        const withHeader = [header, ...data]
+        const worksheet = new xlsx.utils.aoa_to_sheet(withHeader)
+        const workbook = xlsx.utils.book_new()
+        xlsx.utils.book_append_sheet(workbook, worksheet, 'ZONE')
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=zone_report.xlsx');
+
+        const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+        console.log('Success generate report')
+        return res.status(200).send(buffer)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Failed to generate report'
+        })
+    }
+}
+
 export default {
     createZone,
     fetchZoneWithTitle,
     fetchZoneByName,
     fetchZoneById,
     UpdateZone,
-    DeleteZone
+    DeleteZone,
+    getReportZone
 }

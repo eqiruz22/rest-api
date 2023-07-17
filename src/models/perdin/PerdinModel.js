@@ -293,6 +293,41 @@ const DeletePerdinDaily = (id) => {
     return query
 }
 
+const ForReportPerdinDaily = () => {
+    const sql = `SELECT
+    perdin_harian.id,
+    perdin_harian.title_name,
+    perdin_harian.maksud_perjalanan,
+    perdin_harian.tempat_tujuan,
+    perdin_harian.start_date,
+    perdin_harian.end_date,
+    perdin_harian.lama_perjalanan,
+    perdin_harian.transport_tujuan,
+    perdin_harian.transport_local,
+    perdin_harian.penginapan,
+    perdin_harian.meals,
+    perdin_harian.allowance,
+    perdin_harian.rapid,
+    perdin_harian.lain,
+    perdin_harian.jumlah_advance,
+    perdin_harian.approved_divisi,
+    perdin_harian.approved_hc,
+    zone.zone_name,
+    divisi.divisi_name,
+    COALESCE(divisi_appr.name,'waiting approval') AS approved_divisi,
+    COALESCE(hc_appr.name,'waiting approval') AS approved_hc,
+    user.name,
+    prj.prj_name,
+    status.proses,
+    perdin_harian.status_id, perdin_harian.user_id FROM perdin_harian JOIN prj JOIN user JOIN divisi JOIN zone
+    LEFT JOIN user AS divisi_appr ON perdin_harian.approved_divisi = divisi_appr.id
+    LEFT JOIN user AS hc_appr ON perdin_harian.approved_hc = hc_appr.id JOIN status
+    WHERE perdin_harian.prj_id = prj.id AND perdin_harian.user_id = user.id AND perdin_harian.status_id = status.id
+    AND user.divisi_id = divisi.id AND perdin_harian.zone_id = zone.id`
+    const query = dbPool.execute(sql)
+    return query
+}
+
 
 
 export default {
@@ -318,5 +353,6 @@ export default {
     CountDivisiApprovalById,
     DeletePerdinDaily,
     CountApprovalHC,
-    UpdatePerdin
+    UpdatePerdin,
+    ForReportPerdinDaily
 }

@@ -3,6 +3,7 @@ import UserModel from "../../models/user/UserModel.js";
 import DivisiModel from "../../models/divisi/DivisiModel.js";
 import Email from "../../helper/Email.js";
 import { formatDateWithoutTime } from "../../helper/helperDate.js";
+import xlsx from 'xlsx'
 
 const showPerdin = async (req, res) => {
     try {
@@ -560,6 +561,28 @@ const destroyPerdinDaily = async (req, res) => {
     }
 }
 
+const getReportPerdinDaily = async (req, res) => {
+    try {
+        const [rows] = await PerdinModel.ForReportPerdinDaily()
+        const header = ['#', 'Nama', 'PRJ', 'title', 'Divisi', 'Zone', 'Status', 'Maksud Perjalanan', 'Tempat Tujuan', 'Tanggal Berangkat', 'Tanggal Pulang', 'Lama Perjalanan', 'Transport Tujuan', 'Transport Local', 'Penginapan', 'Meals', 'Allowance', 'Rapid Test', 'Lain-Lain', 'Jumlah Advance', 'Approved Divisi', 'Approved HC']
+        const data = rows.map((row, index) => [index + 1, row.name, row.prj_name, row.title_name, row.divisi_name, row.zone_name, row.proses, row.maksud_perjalanan, row.tempat_tujuan, formatDateWithoutTime(row.start_date), formatDateWithoutTime(row.end_date), `${row.lama_perjalanan} hari`, row.transport_tujuan.toLocaleString().split(',').join('.'), row.transport_local.toLocaleString().split(',').join('.'), row.penginapan.toLocaleString().split(',').join('.'), row.meals.toLocaleString().split(',').join('.'), row.allowance.toLocaleString().split(',').join('.'), row.rapid.toLocaleString().split(',').join('.'), row.lain.toLocaleString().split(',').join('.'), row.jumlah_advance.toLocaleString().split(',').join('.'), row.approved_divisi, row.approved_hc])
+        const withHeader = [header, ...data]
+        const worksheet = new xlsx.utils.aoa_to_sheet(withHeader)
+        const workbook = xlsx.utils.book_new()
+        xlsx.utils.book_append_sheet(workbook, worksheet, 'Perdin Daily')
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=perdin_daily_report.xlsx');
+        const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+        console.log('Success generate report')
+        return res.status(200).send(buffer)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Failed to generate report'
+        })
+    }
+}
+
 
 
 
@@ -577,4 +600,5 @@ export default {
     updatePerdinDaily,
     showPerdinDetail,
     destroyPerdinDaily,
+    getReportPerdinDaily
 }

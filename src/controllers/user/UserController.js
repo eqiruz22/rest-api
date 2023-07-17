@@ -1,9 +1,33 @@
 import UserModel from "../../models/user/UserModel.js"
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import xlsx from 'xlsx'
 
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.ACCESS_TOKEN, { expiresIn: '1d' })
+}
+
+const getReportUser = async (req, res) => {
+    try {
+        const [rows] = await UserModel.ForReportUser()
+        const header = ['#', 'Email', 'Name', 'Title', 'Role', 'Divisi']
+        const data = rows.map((row, index) => [index + 1, row.email, row.name, row.title_name, row.role_name, row.divisi_name])
+        const withHeader = [header, ...data]
+        const worksheet = new xlsx.utils.aoa_to_sheet(withHeader)
+        const workbook = xlsx.utils.book_new()
+        xlsx.utils.book_append_sheet(workbook, worksheet, 'Users')
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=users_report.xlsx');
+
+        const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+        console.log('Success generate report')
+        return res.status(200).send(buffer)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Failed to generate report'
+        })
+    }
 }
 
 const getAll = async (req, res) => {
@@ -347,5 +371,6 @@ export default {
     getManager,
     Login,
     showUserWithTitle,
-    showUserWithTitleById
+    showUserWithTitleById,
+    getReportUser
 }

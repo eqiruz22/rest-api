@@ -48,6 +48,12 @@ const SelectPrjAll = () => {
     return query
 }
 
+const ForReportPrj = () => {
+    const sql = `SELECT * FROM prj`
+    const query = dbPool.execute(sql)
+    return query
+}
+
 export default {
     SelectPrj,
     SelectById,
@@ -55,5 +61,6 @@ export default {
     UpdatePrj,
     DeletePrj,
     CountPrj,
-    SelectPrjAll
+    SelectPrjAll,
+    ForReportPrj
 }

@@ -58,6 +58,15 @@ const Destroy = (id) => {
     return query
 }
 
+const ForReportZone = () => {
+    const sql = `SELECT
+    zone.id,zone.title_id,zone.zone_name,zone.transport_non_airplane,zone.transport_airplane,zone.hotel,zone.meal_allowance,zone.allowance,
+    title.title_name
+    FROM zone JOIN title WHERE zone.title_id = title.id`
+    const query = dbPool.execute(sql)
+    return query
+}
+
 export default {
     InsertZone,
     SelectZoneWithTitle,
@@ -65,5 +74,6 @@ export default {
     SelectZoneById,
     CountZone,
     Update,
-    Destroy
+    Destroy,
+    ForReportZone
 }

@@ -107,6 +107,17 @@ const SelectUserTitleById = (id) => {
     const query = dbPool.execute(sql, [id])
     return query
 }
+
+const ForReportUser = () => {
+    const sql = `SELECT user.email,
+    user.name,
+    role.role_name,
+    title.title_name,
+    divisi.divisi_name FROM user JOIN role JOIN title JOIN divisi 
+    WHERE user.role = role.id AND user.title_id = title.id AND user.divisi_id = divisi.id`
+    const query = dbPool.execute(sql)
+    return query
+}
 export default {
     SelectAll,
     SelectEmail,
@@ -116,6 +127,7 @@ export default {
     CountRows,
     SelectById,
     Insert,
+    ForReportUser,
     Update,
     UpdateWithPassword,
     UpdateForUser,

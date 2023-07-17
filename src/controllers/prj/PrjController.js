@@ -1,5 +1,5 @@
 import PrjModel from "../../models/prj/PrjModel.js";
-
+import xlsx from 'xlsx'
 const fetchPrj = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 0
@@ -140,11 +140,37 @@ const ListPrj = async (req, res) => {
     }
 }
 
+const getReportPrj = async (req, res) => {
+    try {
+        const [rows] = await PrjModel.ForReportPrj()
+        const header = ['#', 'PRJ Name', 'Project Name', 'Status']
+        const data = rows.map((row, index) => [index + 1, row.prj_name, row.project_name, row.status])
+        const withHeader = [header, ...data]
+        const worksheet = new xlsx.utils.aoa_to_sheet(withHeader)
+        const workbook = xlsx.utils.book_new()
+        xlsx.utils.book_append_sheet(workbook, worksheet, 'PRJ')
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', 'attachment; filename=prj_report.xlsx');
+
+        const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+        console.log('Success generate report')
+        return res.status(200).send(buffer)
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Failed to generate report'
+        })
+    }
+}
+
+
+
 export default {
     fetchPrj,
     fetchById,
     createPrj,
     updatePrj,
     destroyPrj,
-    ListPrj
+    ListPrj,
+    getReportPrj
 }

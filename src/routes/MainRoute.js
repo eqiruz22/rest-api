@@ -66,5 +66,9 @@ router.patch('/zone/:id', ZoneController.UpdateZone)
 router.delete('/zone/:id', ZoneController.DeleteZone)
 
 router.get('/test', DivisiController.selectDivisiApproval)
+router.get('/report-user', UserController.getReportUser)
+router.get('/report-perdin-daily', PerdinController.getReportPerdinDaily)
+router.get('/report-prj', PrjController.getReportPrj)
+router.get('/report-zone', ZoneController.getReportZone)
 
 export default router;
