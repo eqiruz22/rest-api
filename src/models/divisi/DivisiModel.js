@@ -13,9 +13,8 @@ const SelectDivisi = () => {
 }
 
 const SelectDivisiWithHead = (search, offset, limit) => {
-    const sql = `SELECT divisi.id,divisi.divisi_name,manager.name AS divisi_manager,user.name FROM divisi
-                JOIN user AS manager ON divisi.divisi_manager = manager.id JOIN user ON divisi.divisi_head = user.id 
-                WHERE divisi.divisi_head = user.id AND divisi.divisi_name LIKE ? ORDER BY divisi.id DESC LIMIT ? OFFSET ? `
+    const sql = `SELECT divisi.id,divisi.divisi_name,COALESCE(manager.name, 'No user') AS divisi_manager,COALESCE(head.name,'No user') AS divisi_head FROM divisi 
+                 LEFT JOIN user AS manager ON divisi.divisi_manager = manager.id LEFT JOIN user AS head ON divisi.divisi_head = head.id WHERE divisi.divisi_name LIKE ? ORDER BY divisi.id DESC LIMIT ? OFFSET ? `
     const query = dbPool.execute(sql, [`%${search}%`, limit, offset])
     return query
 }
@@ -27,8 +26,8 @@ const CountDivisi = (search) => {
 }
 
 const SelectDivisiById = (id) => {
-    const sql = `SELECT divisi.id, divisi.divisi_name, divisi.divisi_manager AS manager_id,divisi.divisi_head AS head_id, manager.name AS divisi_manager, user.name AS divisi_of_head FROM divisi
-                 JOIN user AS manager ON divisi.divisi_manager = manager.id JOIN user ON divisi.divisi_head = user.id WHERE divisi.id =?`
+    const sql = `SELECT divisi.id, divisi.divisi_name, divisi.divisi_manager AS manager_id, divisi.divisi_head AS head_id, manager.name AS divisi_manager, user.name AS divisi_of_head FROM divisi 
+    LEFT JOIN user AS manager ON divisi.divisi_manager = manager.id LEFT JOIN user ON divisi.divisi_head = user.id WHERE divisi.id =?`
     const query = dbPool.execute(sql, [id])
     return query
 }

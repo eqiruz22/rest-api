@@ -10,15 +10,14 @@ const showTitle = async (req, res) => {
         const [count] = await TitleModel.CountTitle(search)
         const [response] = await TitleModel.SelectTitle(search, offset, limit)
         const totalPage = Math.ceil(count[0]['title'] / limit)
-        return res.status(200)
-            .json({
-                message: 'Success show title',
-                value: response,
-                page: page,
-                limit: limit,
-                row: count[0]['title'],
-                totalPage: totalPage
-            })
+        return res.status(200).json({
+            message: 'Success show title',
+            value: response,
+            page: page,
+            limit: limit,
+            row: count[0]['title'],
+            totalPage: totalPage
+        })
     } catch (error) {
         console.log(error)
         return res.status(500)

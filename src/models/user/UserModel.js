@@ -1,8 +1,16 @@
 import dbPool from '../../db/Config.js'
 
 const SelectAll = (search, offset, limit) => {
-    const sql = 'CALL showUser(?,?,?)'
-    const query = dbPool.execute(sql, [search, limit, offset])
+    const sql = `SELECT
+    user.id,
+    user.email,
+    user.name,
+    divisi.divisi_name,
+    role.role_name,
+    title.title_name
+    FROM user JOIN role JOIN title JOIN divisi
+    WHERE user.divisi_id = divisi.id AND user.role = role.id AND user.title_id = title.id AND email LIKE ? ORDER BY id DESC LIMIT ? OFFSET ?`
+    const query = dbPool.execute(sql, [`%${search}%`, limit, offset])
     return query
 }
 

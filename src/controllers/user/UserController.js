@@ -41,7 +41,7 @@ const getAll = async (req, res) => {
         const totalPage = Math.ceil(totalRow[0]['email'] / limit)
         return res.status(200).json({
             message: "Success show all data",
-            result: rows[0],
+            result: rows,
             page: page,
             limit: limit,
             row: totalRow[0]['email'],
